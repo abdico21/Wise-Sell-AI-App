@@ -1,0 +1,790 @@
+{
+  "version": "3.8.0",
+  "lastUpdated": "2026-11-10T00:08:48.545Z",
+  "connectors": [
+    {
+      "id": "conn-telebirr",
+      "name": "Telebirr Merchant API (ቴሌብር)",
+      "category": "Mobile Money",
+      "country": "Ethiopia",
+      "status": "Connected",
+      "latencyMs": 32,
+      "lastSyncTime": "Just now",
+      "eventsProcessedToday": 413,
+      "apiEndpoint": "https://api.telebirr.et/v2/payment/checkout",
+      "webhookSecretSet": true
+    },
+    {
+      "id": "conn-cbe",
+      "name": "CBE Birr (የኢትዮጵያ ንግድ ባንክ)",
+      "category": "Mobile Money",
+      "country": "Ethiopia",
+      "status": "Connected",
+      "latencyMs": 68,
+      "lastSyncTime": "2 mins ago",
+      "eventsProcessedToday": 184,
+      "apiEndpoint": "https://cbebirr.cbe.com.et/merchant/ipn",
+      "webhookSecretSet": true
+    },
+    {
+      "id": "conn-chapa",
+      "name": "Chapa Payment Gateway (ቻፓ)",
+      "category": "Mobile Money",
+      "country": "Ethiopia",
+      "status": "Connected",
+      "latencyMs": 55,
+      "lastSyncTime": "1 min ago",
+      "eventsProcessedToday": 260,
+      "apiEndpoint": "https://api.chapa.co/v1/transaction/initialize",
+      "webhookSecretSet": true
+    },
+    {
+      "id": "conn-telegram",
+      "name": "Telegram Commerce Bot (@WiseSellBot)",
+      "category": "Social Commerce",
+      "country": "Ethiopia",
+      "status": "Connected",
+      "latencyMs": 38,
+      "lastSyncTime": "Just now",
+      "eventsProcessedToday": 890,
+      "apiEndpoint": "https://api.telegram.org/bot/wisesell_webhook",
+      "webhookSecretSet": true
+    },
+    {
+      "id": "conn-shopify",
+      "name": "Shopify Plus Server CAPI",
+      "category": "E-Commerce",
+      "country": "Global",
+      "status": "Connected",
+      "latencyMs": 82,
+      "lastSyncTime": "Just now",
+      "eventsProcessedToday": 1420,
+      "apiEndpoint": "https://wisesell.myshopify.com/admin/api/2026-10/graphql",
+      "webhookSecretSet": true
+    },
+    {
+      "id": "conn-tiktok",
+      "name": "TikTok Shop & Events API",
+      "category": "Social Commerce",
+      "country": "Global",
+      "status": "Connected",
+      "latencyMs": 95,
+      "lastSyncTime": "Just now",
+      "eventsProcessedToday": 935,
+      "apiEndpoint": "https://business-api.tiktok.com/open_api/v1.3/",
+      "webhookSecretSet": true
+    },
+    {
+      "id": "conn-meta",
+      "name": "Meta Marketing & Conversions API",
+      "category": "Ad Network",
+      "country": "Global",
+      "status": "Connected",
+      "latencyMs": 110,
+      "lastSyncTime": "1 min ago",
+      "eventsProcessedToday": 2840,
+      "apiEndpoint": "https://graph.facebook.com/v21.0/act_wisesell",
+      "webhookSecretSet": true
+    },
+    {
+      "id": "conn-salesforce",
+      "name": "Salesforce Enterprise CRM (NA124)",
+      "category": "CRM",
+      "country": "Global",
+      "status": "Connected",
+      "latencyMs": 85,
+      "lastSyncTime": "2 mins ago",
+      "eventsProcessedToday": 320,
+      "apiEndpoint": "https://wisesell.my.salesforce.com/services/data/v61.0",
+      "webhookSecretSet": true
+    }
+  ],
+  "leads": [
+    {
+      "id": "lead-801",
+      "name": "Victoria Vance",
+      "email": "v.vance@nordicminimal.com",
+      "company": "Nordic Minimal Home",
+      "monthlyGmv": "$420,000/mo",
+      "channels": [
+        "Shopify",
+        "Amazon US",
+        "TikTok Shop"
+      ],
+      "score": 96,
+      "tier": "Tier 1 Enterprise",
+      "intent": "Multi-Channel Stockouts & Ad Fatigue",
+      "salesforceStatus": "Synced",
+      "salesforceLeadId": "SF-0049281",
+      "assignedRep": "Marcus Sterling (Enterprise Pod 1)",
+      "lastInteraction": "14 mins ago",
+      "inquirySnippet": "We sell 3,000+ units monthly across Amazon and Shopify. We desperately need real-time stock sync and autonomous ad budget reallocation.",
+      "bant": {
+        "budget": "$25k/yr software budget confirmed",
+        "authority": "Co-founder & Head of E-Commerce Operations",
+        "need": "Eliminate duplicate orders and sync TikTok Shop inventory",
+        "timeline": "Immediate (within 7 business days)"
+      }
+    },
+    {
+      "id": "lead-802",
+      "name": "Darius Thorne",
+      "email": "darius@luminaapparel.co",
+      "company": "Lumina Activewear",
+      "monthlyGmv": "$185,000/mo",
+      "channels": [
+        "Shopify",
+        "TikTok Shop",
+        "Instagram Shop"
+      ],
+      "score": 88,
+      "tier": "Tier 1 Enterprise",
+      "intent": "Automated Social Engagement & High DM Volume",
+      "salesforceStatus": "Synced",
+      "salesforceLeadId": "SF-0049302",
+      "assignedRep": "Elena Rostova (Growth Team)",
+      "lastInteraction": "42 mins ago",
+      "inquirySnippet": "Our TikTok DMs and Instagram comments are exploding after creator partnerships. We need AI to triage purchase inquiries directly into sales.",
+      "bant": {
+        "budget": "$15k/yr approved by CFO",
+        "authority": "VP Marketing & Brand Experience",
+        "need": "Autonomous social engagement agent + Salesforce Lead sync",
+        "timeline": "Next 14-30 days"
+      }
+    },
+    {
+      "id": "lead-803",
+      "name": "Kavita Patel",
+      "email": "kavita@ergofurniture.io",
+      "company": "ErgoCraft Workspaces",
+      "monthlyGmv": "$95,000/mo",
+      "channels": [
+        "WooCommerce",
+        "Amazon",
+        "eBay"
+      ],
+      "score": 79,
+      "tier": "Tier 2 Growth",
+      "intent": "A/B Testing & Ad Spend Optimization",
+      "salesforceStatus": "Pending Sync",
+      "assignedRep": "Julian Vance (Commercial Rep)",
+      "lastInteraction": "2 hours ago",
+      "inquirySnippet": "We want to lower our Meta ad CPA from $54 to under $30 using autonomous A/B testing and CRO recommendations.",
+      "bant": {
+        "budget": "$8k/yr initial exploration",
+        "authority": "Growth Marketing Lead",
+        "need": "Automated CRO audits & multi-variant split tests",
+        "timeline": "Evaluating this quarter"
+      }
+    },
+    {
+      "id": "lead-804",
+      "name": "Liam Chen",
+      "email": "liam@novacoffee.store",
+      "company": "Nova Roast Labs",
+      "monthlyGmv": "$48,000/mo",
+      "channels": [
+        "Shopify",
+        "Amazon"
+      ],
+      "score": 64,
+      "tier": "Tier 3 Starter",
+      "intent": "Inventory Low-Stock Alerts & PO Generator",
+      "salesforceStatus": "In Review",
+      "assignedRep": "Unassigned (Self-Serve Queue)",
+      "lastInteraction": "5 hours ago",
+      "inquirySnippet": "Looking for a simple way to get low-stock SMS alerts and create automated vendor restock orders.",
+      "bant": {
+        "budget": "Self-serve tiered plan ($299/mo)",
+        "authority": "Sole Proprietor",
+        "need": "Basic inventory sync and automated reordering",
+        "timeline": "Testing trial"
+      }
+    }
+  ],
+  "inventory": [
+    {
+      "id": "inv-01",
+      "sku": "WS-HUB-MATTE",
+      "title": "Autonomous MagSafe 3-in-1 Charging Hub (Matte Black)",
+      "category": "Electronics & Desk Tech",
+      "price": 89,
+      "totalStock": 342,
+      "reorderPoint": 100,
+      "stockStatus": "In Stock",
+      "channels": [
+        {
+          "name": "Shopify",
+          "allocatedStock": 140,
+          "synced": true,
+          "lastSyncTime": "2 mins ago"
+        },
+        {
+          "name": "Amazon",
+          "allocatedStock": 120,
+          "synced": true,
+          "lastSyncTime": "2 mins ago"
+        },
+        {
+          "name": "TikTok Shop",
+          "allocatedStock": 52,
+          "synced": true,
+          "lastSyncTime": "3 mins ago"
+        },
+        {
+          "name": "eBay",
+          "allocatedStock": 30,
+          "synced": true,
+          "lastSyncTime": "5 mins ago"
+        }
+      ],
+      "monthlyVelocity": 512,
+      "supplierLeadDays": 12
+    },
+    {
+      "id": "inv-02",
+      "sku": "WS-STAND-SILV",
+      "title": "Aerospace Aluminum Adjustable Laptop Riser",
+      "category": "Office & Ergonomics",
+      "price": 64,
+      "totalStock": 48,
+      "reorderPoint": 75,
+      "stockStatus": "Low Stock",
+      "channels": [
+        {
+          "name": "Shopify",
+          "allocatedStock": 25,
+          "synced": true,
+          "lastSyncTime": "1 min ago"
+        },
+        {
+          "name": "Amazon",
+          "allocatedStock": 15,
+          "synced": true,
+          "lastSyncTime": "1 min ago"
+        },
+        {
+          "name": "TikTok Shop",
+          "allocatedStock": 8,
+          "synced": true,
+          "lastSyncTime": "1 min ago"
+        },
+        {
+          "name": "eBay",
+          "allocatedStock": 0,
+          "synced": false,
+          "lastSyncTime": "Stock Protected"
+        }
+      ],
+      "monthlyVelocity": 290,
+      "supplierLeadDays": 16
+    },
+    {
+      "id": "inv-03",
+      "sku": "WS-CABLE-PRO",
+      "title": "Braided 240W USB-C Silicone Cable with E-Marker Chip",
+      "category": "Accessories",
+      "price": 24,
+      "totalStock": 18,
+      "reorderPoint": 80,
+      "stockStatus": "Critical Reorder",
+      "channels": [
+        {
+          "name": "Shopify",
+          "allocatedStock": 10,
+          "synced": true,
+          "lastSyncTime": "Just now"
+        },
+        {
+          "name": "Amazon",
+          "allocatedStock": 8,
+          "synced": true,
+          "lastSyncTime": "Just now"
+        },
+        {
+          "name": "TikTok Shop",
+          "allocatedStock": 0,
+          "synced": false,
+          "lastSyncTime": "Auto-Paused"
+        },
+        {
+          "name": "eBay",
+          "allocatedStock": 0,
+          "synced": false,
+          "lastSyncTime": "Auto-Paused"
+        }
+      ],
+      "monthlyVelocity": 420,
+      "supplierLeadDays": 10
+    },
+    {
+      "id": "inv-04",
+      "sku": "WS-MAT-LEATH",
+      "title": "Vegan Saffiano Leather Desk Pad (Midnight Navy)",
+      "category": "Accessories",
+      "price": 49,
+      "totalStock": 680,
+      "reorderPoint": 150,
+      "stockStatus": "Surplus",
+      "channels": [
+        {
+          "name": "Shopify",
+          "allocatedStock": 300,
+          "synced": true,
+          "lastSyncTime": "4 mins ago"
+        },
+        {
+          "name": "Amazon",
+          "allocatedStock": 220,
+          "synced": true,
+          "lastSyncTime": "4 mins ago"
+        },
+        {
+          "name": "TikTok Shop",
+          "allocatedStock": 110,
+          "synced": true,
+          "lastSyncTime": "4 mins ago"
+        },
+        {
+          "name": "WooCommerce",
+          "allocatedStock": 50,
+          "synced": true,
+          "lastSyncTime": "8 mins ago"
+        }
+      ],
+      "monthlyVelocity": 165,
+      "supplierLeadDays": 20
+    },
+    {
+      "id": "inv-05",
+      "sku": "WS-LAMP-BAR",
+      "title": "Auto-Dimming Curved Monitor ScreenBar Light",
+      "category": "Lighting",
+      "price": 119,
+      "totalStock": 115,
+      "reorderPoint": 60,
+      "stockStatus": "In Stock",
+      "channels": [
+        {
+          "name": "Shopify",
+          "allocatedStock": 50,
+          "synced": true,
+          "lastSyncTime": "2 mins ago"
+        },
+        {
+          "name": "Amazon",
+          "allocatedStock": 40,
+          "synced": true,
+          "lastSyncTime": "2 mins ago"
+        },
+        {
+          "name": "TikTok Shop",
+          "allocatedStock": 15,
+          "synced": true,
+          "lastSyncTime": "5 mins ago"
+        },
+        {
+          "name": "eBay",
+          "allocatedStock": 10,
+          "synced": true,
+          "lastSyncTime": "5 mins ago"
+        }
+      ],
+      "monthlyVelocity": 195,
+      "supplierLeadDays": 14
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "ab-101",
+      "name": "Q4 Omnichannel Wireless Hub Flash Scale",
+      "channel": "Meta Ads",
+      "status": "Running",
+      "confidence": 96.4,
+      "winnerVariantId": "var-b",
+      "variants": [
+        {
+          "id": "var-a",
+          "name": "Variant A (Feature List Video)",
+          "headline": "Charge iPhone, Apple Watch & AirPods all on 1 clean stand.",
+          "cta": "Shop Now",
+          "trafficSplit": 35,
+          "impressions": 48200,
+          "clicks": 1420,
+          "ctr": 2.94,
+          "conversions": 38,
+          "cvr": 2.67,
+          "spend": 1820,
+          "cpa": 47.89,
+          "roas": 2.45
+        },
+        {
+          "id": "var-b",
+          "name": "Variant B (Social Proof & Desk Aesthetic)",
+          "headline": "Say goodbye to messy cables. Rated 4.9/5 by 12,000+ creators.",
+          "cta": "Claim 20% Off",
+          "trafficSplit": 65,
+          "impressions": 74600,
+          "clicks": 2940,
+          "ctr": 3.94,
+          "conversions": 132,
+          "cvr": 4.48,
+          "spend": 2850,
+          "cpa": 21.59,
+          "roas": 4.82
+        }
+      ]
+    },
+    {
+      "id": "ab-102",
+      "name": "TikTok Viral Creator UGC Spark Campaign",
+      "channel": "TikTok Ads",
+      "status": "Analyzing",
+      "confidence": 89.2,
+      "variants": [
+        {
+          "id": "var-c",
+          "name": "Variant C (Unboxing ASMR)",
+          "headline": "The unboxing experience alone is worth it 🤤",
+          "cta": "Order on TikTok Shop",
+          "trafficSplit": 50,
+          "impressions": 62400,
+          "clicks": 2890,
+          "ctr": 4.63,
+          "conversions": 94,
+          "cvr": 3.25,
+          "spend": 1650,
+          "cpa": 17.55,
+          "roas": 3.92
+        },
+        {
+          "id": "var-d",
+          "name": "Variant D (Problem/Solution Drop Test)",
+          "headline": "I threw away 4 cheap chargers before finding this one.",
+          "cta": "Get Yours Now",
+          "trafficSplit": 50,
+          "impressions": 59100,
+          "clicks": 2340,
+          "ctr": 3.95,
+          "conversions": 81,
+          "cvr": 3.46,
+          "spend": 1540,
+          "cpa": 19.01,
+          "roas": 3.65
+        }
+      ]
+    },
+    {
+      "id": "ab-103",
+      "name": "Google High-Intent Search: MagSafe Charging Stand",
+      "channel": "Google Search",
+      "status": "Completed",
+      "confidence": 99.1,
+      "winnerVariantId": "var-f",
+      "variants": [
+        {
+          "id": "var-e",
+          "name": "Variant E (Generic Best Stand)",
+          "headline": "Best 3-in-1 MagSafe Charger 2026 | Fast Shipping",
+          "cta": "Visit Store",
+          "trafficSplit": 20,
+          "impressions": 18400,
+          "clicks": 980,
+          "ctr": 5.32,
+          "conversions": 32,
+          "cvr": 3.26,
+          "spend": 1140,
+          "cpa": 35.62,
+          "roas": 2.88
+        },
+        {
+          "id": "var-f",
+          "name": "Variant F (Official Qi2 Certified 15W)",
+          "headline": "Official Qi2 15W Fast Wireless Charger | 2-Yr Warranty",
+          "cta": "Order Qi2 Today",
+          "trafficSplit": 80,
+          "impressions": 34100,
+          "clicks": 2420,
+          "ctr": 7.09,
+          "conversions": 148,
+          "cvr": 6.11,
+          "spend": 2410,
+          "cpa": 16.28,
+          "roas": 5.24
+        }
+      ]
+    }
+  ],
+  "socialPosts": [
+    {
+      "id": "post-01",
+      "platform": "Instagram",
+      "hook": "The clean desk setup rule top founders swear by in 2026 ⚡",
+      "caption": "Messy cables drain focus faster than you think. Our Qi2 3-in-1 Charging Hub eliminates 3 cords with a single aerospace-grade aluminum footprint. Tap the shopping tag to claim 15% off today only.",
+      "scheduledTime": "Today at 6:30 PM EST",
+      "status": "Scheduled",
+      "tags": [
+        "#DeskSetup",
+        "#TechAesthetics",
+        "#ProductivityHacks",
+        "#Minimalism"
+      ]
+    },
+    {
+      "id": "post-02",
+      "platform": "TikTok",
+      "hook": "POV: Your phone charger actually matches your aesthetic ☁️",
+      "caption": "Say goodbye to that tangled mess on your bedside table. Qi2 fast charging + official Apple Watch magnetic fast charging. Link in bio for the flash drop.",
+      "scheduledTime": "Tomorrow at 1:15 PM EST",
+      "status": "Scheduled",
+      "tags": [
+        "#TikTokMadeMeBuyIt",
+        "#AestheticDesk",
+        "#TechTok",
+        "#DeskGoals"
+      ]
+    },
+    {
+      "id": "post-03",
+      "platform": "LinkedIn",
+      "hook": "How autonomous commerce agents saved $38,000 in lost GMV this month:",
+      "caption": "Multi-channel e-commerce is broken when inventory lives in silos. If your Amazon listing goes out of stock while Shopify sits on surplus, you burn ad dollars. Here is how autonomous stock syncing and CRO agents solve it.",
+      "scheduledTime": "Yesterday at 9:00 AM EST",
+      "status": "Published",
+      "engagementRate": "5.4%",
+      "impressions": 14200,
+      "clicks": 840,
+      "tags": [
+        "#Ecommerce",
+        "#SupplyChainTech",
+        "#RetailAutomation",
+        "#Scale"
+      ]
+    },
+    {
+      "id": "post-04",
+      "platform": "X",
+      "hook": "E-commerce founders: stop manually adjusting ad spend across Meta and TikTok.",
+      "caption": "WiseSell AI automatically rebalances budget to the highest ROAS ad set every 4 hours while pausing low-converting creatives. Here is the 2-week performance comparison:",
+      "scheduledTime": "Nov 11 at 11:00 AM EST",
+      "status": "Draft",
+      "tags": [
+        "#DTC",
+        "#GrowthHacking",
+        "#AdOptimization"
+      ]
+    }
+  ],
+  "customerEngagements": [
+    {
+      "id": "eng-01",
+      "platform": "Instagram",
+      "customerName": "Marcus Lindqvist",
+      "handle": "@marcus_arch",
+      "message": "Hey! Does the matte black hub support simultaneous 15W fast charging on iPhone 16 Pro and Apple Watch Series 10?",
+      "receivedTime": "3 mins ago",
+      "sentiment": "High Purchase Intent",
+      "status": "Awaiting Approval",
+      "aiDraftedResponse": "Hey Marcus! Yes, absolutely! It features full Qi2 15W certified wireless fast-charging for your iPhone 16 Pro, alongside official Apple Watch fast charging (0 to 80% in ~45 mins). Here is direct VIP checkout with free express shipping: wisesell.shop/hub-black ⚡",
+      "crmSynced": true
+    },
+    {
+      "id": "eng-02",
+      "platform": "TikTok",
+      "customerName": "Chloe Bennett",
+      "handle": "@chloedevs",
+      "message": "Can I connect this to my UK wall plug or does it only come with US adapter?",
+      "receivedTime": "12 mins ago",
+      "sentiment": "Product Inquiry",
+      "status": "AI Responded",
+      "aiDraftedResponse": "Hi Chloe! Every order ships with interchangeable US, UK, and EU modular plug heads in the box! You can order seamlessly from our UK warehouse.",
+      "crmSynced": true
+    },
+    {
+      "id": "eng-03",
+      "platform": "Shopify Chat",
+      "customerName": "Soren K.",
+      "handle": "soren.k@gmail.com",
+      "message": "I have 5 items in my cart ($340 total) but the discount code FLASH15 says expired. Can you help me out?",
+      "receivedTime": "24 mins ago",
+      "sentiment": "High Purchase Intent",
+      "status": "Awaiting Approval",
+      "aiDraftedResponse": "Hey Soren! I have personally extended the 15% VIP discount for your cart! Use custom code VIP15-SOREN at checkout now to save $51.00 immediately. Let me know if you need any assistance!",
+      "crmSynced": true
+    },
+    {
+      "id": "eng-04",
+      "platform": "X",
+      "customerName": "TechReviewDaily",
+      "handle": "@techreviewdaily",
+      "message": "Love the minimalist packaging! Doing a roundup of top 5 creator desk accessories for December. Who can I contact for press sample?",
+      "receivedTime": "1 hour ago",
+      "sentiment": "High Purchase Intent",
+      "status": "Escalated to Rep",
+      "aiDraftedResponse": "Thank you so much! We would love to collaborate. Connecting you directly with our PR & Partnerships Director: partnerships@wisesell.ai with a review kit dispatched today.",
+      "crmSynced": true
+    }
+  ],
+  "channelTelemetry": [
+    {
+      "id": "chan-meta",
+      "channel": "Meta Ads",
+      "status": "Active",
+      "monthlySpend": 12400,
+      "roas": 3.42,
+      "cpa": 28.5,
+      "targetCpa": 24,
+      "cvr": 3.82,
+      "ctr": 2.94,
+      "frequency": 3.84,
+      "activeStrategy": "Lowest Cost (Auto-Bid)",
+      "adSetsCount": 6,
+      "topPerformingAudience": "1% Lookalike of 90-Day VIP Buyers ($250+ AOV)",
+      "creativeFatigueScore": "Fatigued",
+      "shopifyAttributedRevenue": 42408,
+      "lastOptimizedTime": "12 mins ago"
+    },
+    {
+      "id": "chan-tiktok",
+      "channel": "TikTok Ads",
+      "status": "Active",
+      "monthlySpend": 8900,
+      "roas": 4.15,
+      "cpa": 19.8,
+      "targetCpa": 22,
+      "cvr": 4.62,
+      "ctr": 4.25,
+      "frequency": 2.45,
+      "activeStrategy": "Bid Cap ($18.00)",
+      "adSetsCount": 4,
+      "topPerformingAudience": "Creator UGC Spark Audience (Tech & Desk Aesthetic)",
+      "creativeFatigueScore": "Nominal",
+      "shopifyAttributedRevenue": 36935,
+      "lastOptimizedTime": "18 mins ago"
+    },
+    {
+      "id": "chan-google",
+      "channel": "Google Search & Shopping",
+      "status": "Active",
+      "monthlySpend": 6200,
+      "roas": 3.85,
+      "cpa": 24.1,
+      "targetCpa": 25,
+      "cvr": 5.12,
+      "ctr": 5.84,
+      "frequency": 1.8,
+      "activeStrategy": "Maximize Conversions",
+      "adSetsCount": 3,
+      "topPerformingAudience": "High-Intent Search: \"Qi2 3-in-1 MagSafe Stand\"",
+      "creativeFatigueScore": "Nominal",
+      "shopifyAttributedRevenue": 23870,
+      "lastOptimizedTime": "34 mins ago"
+    },
+    {
+      "id": "chan-amazon",
+      "channel": "Amazon Sponsored Ads",
+      "status": "Throttled",
+      "monthlySpend": 4800,
+      "roas": 3.2,
+      "cpa": 31,
+      "targetCpa": 25,
+      "cvr": 4.2,
+      "ctr": 2.1,
+      "frequency": 2.1,
+      "activeStrategy": "Dynamic Bids - Up & Down",
+      "adSetsCount": 3,
+      "topPerformingAudience": "Category Conquesting: Desk Accessories & Wireless Hubs",
+      "creativeFatigueScore": "Moderate",
+      "shopifyAttributedRevenue": 15360,
+      "lastOptimizedTime": "8 mins ago"
+    }
+  ],
+  "activityLogs": [
+    {
+      "id": "act-01",
+      "timestamp": "2 mins ago",
+      "agent": "Marketing Agent",
+      "action": "Paused Meta Ad Variant A (CVR 2.67%) and reallocated 65% budget ($2,850) to Variant B (CVR 4.48%, ROAS 4.82x)",
+      "impact": "Estimated CPA reduction from $47.89 to $21.59 (+108% ROAS lift)",
+      "category": "Optimization"
+    },
+    {
+      "id": "act-02",
+      "timestamp": "8 mins ago",
+      "agent": "Inventory Agent",
+      "action": "Triggered automated low-stock safety throttle on Amazon US for SKU WS-CABLE-PRO (18 units left). Created supplier PO #PO-994.",
+      "impact": "Prevented Amazon listing suspension for overselling",
+      "category": "Sync"
+    },
+    {
+      "id": "act-03",
+      "timestamp": "16 mins ago",
+      "agent": "Salesforce Agent",
+      "action": "Qualified inbound lead Victoria Vance (Nordic Minimal, $420k/mo) as Tier 1 Enterprise (Score: 96/100). Synced to Salesforce SF-0049281.",
+      "impact": "Assigned to Enterprise Rep Marcus Sterling & alerted Slack #deal-closers",
+      "category": "Lead Routing"
+    },
+    {
+      "id": "act-04",
+      "timestamp": "32 mins ago",
+      "agent": "Social Media Agent",
+      "action": "Generated and queued 3 cross-platform videos & captions for Instagram and TikTok Shop weekend sale.",
+      "impact": "Scheduled across peak buyer engagement windows (1:15 PM & 6:30 PM EST)",
+      "category": "Automation"
+    },
+    {
+      "id": "act-05",
+      "timestamp": "1 hour ago",
+      "agent": "Business Advisor",
+      "action": "Analyzed weekly cash flow and gross margin across 5 channels. Identified $42,000 incremental GMV opportunity on TikTok Shop.",
+      "impact": "Submitted strategic executive summary to CFO dashboard",
+      "category": "Financial"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ET-ORD-901",
+      "customer": "Yohannes Bekele",
+      "paymentMethod": "Telebirr ቴሌብር",
+      "amountEtb": 11125,
+      "amountUsd": 89,
+      "items": "1x MagSafe 3-in-1 Hub",
+      "status": "Payment Confirmed · Express Delivery",
+      "channel": "TikTok Shop Ethiopia",
+      "timestamp": "3 mins ago"
+    },
+    {
+      "id": "ET-ORD-902",
+      "customer": "Bethlehem Tadesse",
+      "paymentMethod": "CBE Birr",
+      "amountEtb": 8000,
+      "amountUsd": 64,
+      "items": "1x Aluminum Laptop Stand",
+      "status": "In Transit via Addis Post",
+      "channel": "Telegram Bot",
+      "timestamp": "14 mins ago"
+    },
+    {
+      "id": "ET-ORD-903",
+      "customer": "Dawit Mengistu",
+      "paymentMethod": "Chapa ቻፓ",
+      "amountEtb": 3000,
+      "amountUsd": 24,
+      "items": "1x USB-C 240W Cable",
+      "status": "Warehouse Dispatched",
+      "channel": "Shopify Store",
+      "timestamp": "28 mins ago"
+    },
+    {
+      "id": "ET-ORD-904",
+      "customer": "Fatima Abdi",
+      "paymentMethod": "Telebirr ቴሌብር",
+      "amountEtb": 14875,
+      "amountUsd": 119,
+      "items": "1x Monitor ScreenBar Light",
+      "status": "Delivered",
+      "channel": "Instagram Shop",
+      "timestamp": "45 mins ago"
+    }
+  ]
+}

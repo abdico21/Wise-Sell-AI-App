@@ -1,0 +1,6 @@
+{
+  "name": "WiseSell AI - Enterprise Social Commerce & Multi-Agent Growth Platform",
+  "description": "AI-powered multi-agent e-commerce automation platform integrating digital marketing, social media scheduling, CRM & Salesforce syncing, inventory management, A/B testing, and executive financial business intelligence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

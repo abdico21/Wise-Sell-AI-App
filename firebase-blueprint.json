@@ -1,0 +1,105 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Enterprise user profile with authentication and role assignments",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "description": "User email address" },
+        "fullName": { "type": "string", "description": "Full name" },
+        "role": { "type": "string", "enum": ["Enterprise Admin", "Growth Marketer", "Store Manager", "Inventory Lead"] },
+        "companyName": { "type": "string", "description": "Organization name" },
+        "location": { "type": "string", "description": "HQ or regional office location" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "CampaignABTest": {
+      "title": "CampaignABTest",
+      "description": "Performance ad campaign A/B test across Meta and TikTok with regional Ethiopian demographics and multi-lingual variants",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique test identifier" },
+        "name": { "type": "string", "description": "Campaign test title" },
+        "channel": { "type": "string", "enum": ["Meta Ads", "TikTok Ads", "Google Search", "Pinterest Ads"] },
+        "targetRegion": { "type": "string", "description": "Addis Ababa or Regional Hub (Adama, Hawassa, Bahir Dar, Mekelle, Dire Dawa)" },
+        "status": { "type": "string", "enum": ["Running", "Completed", "Analyzing"] },
+        "confidence": { "type": "number", "description": "Statistical confidence percentage" },
+        "winnerVariantId": { "type": "string", "description": "Winning variant ID if concluded" },
+        "dailyBudgetEtb": { "type": "number", "description": "Daily ad budget in ETB" },
+        "forexLimitUsd": { "type": "number", "description": "Card forex transaction limit in USD equivalent" },
+        "pacingStatus": { "type": "string", "enum": ["Optimal", "Accelerated", "Throttled Forex Limit", "CPA Exceeded"] },
+        "createdAt": { "type": "string", "description": "Creation timestamp" }
+      },
+      "required": ["id", "name", "channel", "status"]
+    },
+    "InventoryItem": {
+      "title": "InventoryItem",
+      "description": "Multi-industry inventory item with stock status and channel allocation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Item ID" },
+        "sku": { "type": "string", "description": "Stock Keeping Unit" },
+        "title": { "type": "string", "description": "Product name" },
+        "industry": { "type": "string", "description": "Industry category" },
+        "price": { "type": "number", "description": "Unit price" },
+        "totalStock": { "type": "number", "description": "Current on-hand inventory" },
+        "reorderPoint": { "type": "number", "description": "Low-stock trigger threshold" },
+        "stockStatus": { "type": "string", "enum": ["In Stock", "Low Stock", "Critical Reorder", "Surplus"] }
+      },
+      "required": ["id", "sku", "title", "price", "totalStock", "stockStatus"]
+    },
+    "SocialPost": {
+      "title": "SocialPost",
+      "description": "Social media post scheduled or published across channels",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Post identifier" },
+        "platform": { "type": "string", "description": "Social media network" },
+        "hook": { "type": "string", "description": "Opening hook" },
+        "caption": { "type": "string", "description": "Post body copy" },
+        "status": { "type": "string", "enum": ["Scheduled", "Published", "Draft", "Generating"] },
+        "scheduledTime": { "type": "string", "description": "Scheduled dispatch time in EAT" }
+      },
+      "required": ["id", "platform", "hook", "caption", "status"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "E-commerce customer order record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Order ID" },
+        "customer": { "type": "string", "description": "Customer name" },
+        "paymentMethod": { "type": "string", "description": "Telebirr, CBE Birr, or card" },
+        "amountEtb": { "type": "number", "description": "Total in ETB" },
+        "amountUsd": { "type": "number", "description": "Total in USD" },
+        "status": { "type": "string", "description": "Payment and fulfillment status" },
+        "timestamp": { "type": "string", "description": "Order timestamp" }
+      },
+      "required": ["id", "customer", "paymentMethod", "amountEtb", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profile document indexed by Auth UID"
+    },
+    "/campaign_tests/{testId}": {
+      "schema": { "$ref": "#/entities/CampaignABTest" },
+      "description": "A/B test variations and performance advertising campaigns"
+    },
+    "/inventory/{itemId}": {
+      "schema": { "$ref": "#/entities/InventoryItem" },
+      "description": "Central catalog and stock parity registry"
+    },
+    "/social_posts/{postId}": {
+      "schema": { "$ref": "#/entities/SocialPost" },
+      "description": "Social commerce post queue"
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Captured customer orders and payment logs"
+    }
+  }
+}
