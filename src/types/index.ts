@@ -323,7 +323,7 @@ export interface SalesOrder {
   quantity: number;
   unitPrice: number;
   totalAmount: number;
-  currency: 'ETB' | 'USD';
+  currency: 'ETB';
   deliveryLocation: string;
   paymentMethod: 'Telebirr' | 'CBE Birr' | 'Cash on Delivery' | 'Bank Transfer' | 'Other';
   status: 'Pending' | 'Confirmed' | 'Fulfilled' | 'Cancelled';
