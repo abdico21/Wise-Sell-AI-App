@@ -1,534 +1,75 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
+import React, { useEffect, useMemo, useState } from 'react';
+import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { auth } from './firebase/config';
+import { Bot, BriefcaseBusiness, ChartNoAxesCombined, Megaphone, Search, Share2, Clapperboard, Boxes, Store, Send, LogOut, Languages, Plus, Trash2, Package, MessageSquare, LoaderCircle } from 'lucide-react';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  NavTab, 
-  CampaignABTest, 
-  LeadRecord, 
-  InventoryItem, 
-  SocialPost, 
-  CustomerEngagementItem, 
-  AgentActivityLog, 
-  CrossPlatformChannelTelemetry,
-  UserProfile
-} from './types';
-import { 
-  initialCampaignTests, 
-  initialLeads, 
-  initialInventory, 
-  initialSocialPosts, 
-  initialCustomerEngagement, 
-  initialActivityLogs,
-  initialChannelTelemetry
-} from './data/mockData';
-import { Header } from './components/Header';
-import { MobileTopBar } from './components/MobileTopBar';
-import { MobileBottomNav } from './components/MobileBottomNav';
-import { LanguageSelectorModal } from './components/LanguageSelectorModal';
-import { OverviewView } from './components/OverviewView';
-import { CampaignOptimizationEngine } from './components/CampaignOptimizationEngine';
-import { VideoAudioMarketingAgent } from './components/VideoAudioMarketingAgent';
-import { MarketingAgentView } from './components/MarketingAgentView';
-import { SocialAgentView } from './components/SocialAgentView';
-import { CrmSalesforceView } from './components/CrmSalesforceView';
-import { InventoryChannelsView } from './components/InventoryChannelsView';
-import { BusinessAdvisorView } from './components/BusinessAdvisorView';
-import { DatabaseConnectorsView } from './components/DatabaseConnectorsView';
-import { EthiopianSeoAgentView } from './components/EthiopianSeoAgentView';
-import { VoiceCommandAssistant } from './components/VoiceCommandAssistant';
-import { AuthModal, AuthMode } from './components/AuthModal';
-import { UserProfileModal } from './components/UserProfileModal';
-import { SupportedLanguage, CurrencyMode, translations } from './i18n/translations';
-import { CheckCircle2, Smartphone, Monitor, Mic } from 'lucide-react';
-import { testFirebaseConnection, auth } from './firebase/config';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-
+const API = 'https://wise-sell-ai-app2.abdico-veiws22.workers.dev';
+const AGENTS = [
+  { id: 'business-assistant', name: 'AI Business Assistant', icon: BriefcaseBusiness, desc: 'Business planning, operations and decision support', prompt: 'Act as my AI Business Assistant. Analyze the business situation, explain assumptions and give practical next steps.' },
+  { id: 'sales-agent', name: 'AI Sales Agent', icon: ChartNoAxesCombined, desc: 'Sales strategy, lead qualification and customer conversion', prompt: 'Act as my AI Sales Agent. Help qualify leads, improve sales conversations, build a sales plan and increase conversion.' },
+  { id: 'digital-marketing', name: 'Digital Marketing Agent', icon: Megaphone, desc: 'Campaign strategy, ads and marketing plans', prompt: 'Act as my Digital Marketing Agent. Build an actionable digital campaign with audience, message, channel, budget considerations and KPIs.' },
+  { id: 'seo-content', name: 'SEO & Content Marketing Agent', icon: Search, desc: 'Keyword strategy, SEO audits and content plans', prompt: 'Act as my SEO and Content Marketing Agent. Provide search intent, keyword clusters, on-page recommendations and a useful content brief.' },
+  { id: 'social-media', name: 'Social Media Agent', icon: Share2, desc: 'Platform-specific social posts and calendars', prompt: 'Act as my Social Media Agent. Create platform-specific social content and a posting calendar. Do not claim to publish anything.' },
+  { id: 'video-audio', name: 'Video & Audio Marketing Agent', icon: Clapperboard, desc: 'Video concepts, scripts, voiceovers and audio ads', prompt: 'Act as my Video and Audio Marketing Agent. Create a concept, storyboard, script, voiceover and call to action. Do not claim to render media.' }
+];
+const labels = {
+  en: { workspace: 'AI Workspace', inventory: 'Inventory', marketplace: 'Marketplace', signIn: 'Sign in', email: 'Email', password: 'Password', send: 'Send to agent', placeholder: 'Describe your business task...', signOut: 'Sign out', add: 'Add item', item: 'Product name', qty: 'Quantity', price: 'Price (ETB)', list: 'Create listing', listing: 'Marketplace listings', empty: 'No items yet', language: 'Language' },
+  am: { workspace: 'የAI የሥራ ቦታ', inventory: 'እቃ አስተዳደር', marketplace: 'ገበያ', signIn: 'ግባ', email: 'ኢሜይል', password: 'የይለፍ ቃል', send: 'ለAI ላክ', placeholder: 'የንግድ ሥራዎን ይግለጹ...', signOut: 'ውጣ', add: 'እቃ ጨምር', item: 'የምርት ስም', qty: 'ብዛት', price: 'ዋጋ (ብር)', list: 'ወደ ገበያ አስገባ', listing: 'የገበያ ዝርዝሮች', empty: 'እስካሁን እቃ የለም', language: 'ቋንቋ' },
+  om: { workspace: 'Iddoo hojii AI', inventory: 'Kuusaa', marketplace: 'Gabaa', signIn: 'Seeni', email: 'Imeelii', password: 'Jecha darbii', send: 'Ergi', placeholder: 'Hojii daldalaa ibsi...', signOut: 'Ba’i', add: 'Meeshaa dabali', item: 'Maqaa oomishaa', qty: 'Baay’ina', price: 'Gatii (ETB)', list: 'Gabaatti galchi', listing: 'Tarree gabaa', empty: 'Meeshaan hin jiru', language: 'Afaan' }
+};
+type Lang = 'en' | 'am' | 'om';
+type Stock = { id: string; name: string; quantity: number; price: number; listed: boolean };
 export default function App() {
-  const [activeTab, setActiveTab] = useState<NavTab>('overview');
-  const [lang, setLang] = useState<SupportedLanguage>('am'); // Default Ethiopian Amharic
-  const [currency, setCurrency] = useState<CurrencyMode>('ETB'); // Default Ethiopian Birr
-  const [isLangModalOpen, setIsLangModalOpen] = useState<boolean>(false);
-  const [isMobileFrame, setIsMobileFrame] = useState<boolean>(false);
-
-  // Authentication & User Session
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
-
-  // Restore only a real Firebase-authenticated session; never create a demo user.
+  const [user, setUser] = useState<any>(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [register, setRegister] = useState(false);
+  const [authError, setAuthError] = useState('');
+  const [lang, setLang] = useState<Lang>('en');
+  const [section, setSection] = useState('workspace');
+  const [agentId, setAgentId] = useState(AGENTS[0].id);
+  const [message, setMessage] = useState('');
+  const [answer, setAnswer] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [stock, setStock] = useState<Stock[]>([]);
+  const [itemName, setItemName] = useState('');
+  const [quantity, setQuantity] = useState('1');
+  const [price, setPrice] = useState('');
+  const t = labels[lang];
+  const agent = useMemo(() => AGENTS.find(a => a.id === agentId) || AGENTS[0], [agentId]);
+  useEffect(() => onAuthStateChanged(auth, setUser), []);
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (!firebaseUser) {
-        setCurrentUser(null);
-        return;
-      }
-      setCurrentUser({
-        id: firebaseUser.uid,
-        email: firebaseUser.email || '',
-        fullName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'WiseSell User',
-        role: 'Growth Marketer',
-        companyName: 'My Business',
-        primaryIndustry: 'Multi-Industry Enterprise',
-        location: 'Ethiopia',
-        is2faVerified: false,
-        lastLoginTime: 'Current session',
-      });
-    });
-    return unsubscribe;
+    try { const saved = localStorage.getItem('wise-sell-stock'); if (saved) setStock(JSON.parse(saved)); } catch {}
   }, []);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
-  const [authModalMode, setAuthModalMode] = useState<AuthMode>('signin');
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
-
-  // Web Speech API Voice Command Assistant
-  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState<boolean>(false);
-
-  const [channels, setChannels] = useState<CrossPlatformChannelTelemetry[]>(initialChannelTelemetry);
-  const [campaigns, setCampaigns] = useState<CampaignABTest[]>(initialCampaignTests);
-  const [leads, setLeads] = useState<LeadRecord[]>(initialLeads);
-  const [inventory, setInventory] = useState<InventoryItem[]>(initialInventory);
-  const [posts, setPosts] = useState<SocialPost[]>(initialSocialPosts);
-  const [engagement, setEngagement] = useState<CustomerEngagementItem[]>(initialCustomerEngagement);
-  const [logs, setLogs] = useState<AgentActivityLog[]>(initialActivityLogs);
-
-  const [isCycleRunning, setIsCycleRunning] = useState<boolean>(false);
-  const [agentCycleCount, setAgentCycleCount] = useState<number>(42);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  const t = translations[lang];
-
-  // Test Firebase Firestore connection on boot as mandated by Firebase skill
-  useEffect(() => {
-    testFirebaseConnection().then((res) => {
-      if (res.connected) {
-        handleAddAgentLog(
-          'Firebase Cloud Firestore connected & security rules active',
-          'Provisioned on lunar-option-jbvhw (europe-west2) with strict ABAC rules',
-          'Automation'
-        );
-      }
-    });
-  }, []);
-
-  // Helper to append agent action log
-  const handleAddAgentLog = (
-    action: string, 
-    impact: string, 
-    category: 'Optimization' | 'Automation' | 'Sync' | 'Lead Routing' | 'Financial'
-  ) => {
-    const agentMap: Record<string, AgentActivityLog['agent']> = {
-      Optimization: 'Marketing Agent',
-      Automation: 'Social Media Agent',
-      Sync: 'Inventory Agent',
-      'Lead Routing': 'Salesforce Agent',
-      Financial: 'Business Advisor',
-    };
-
-    const newLog: AgentActivityLog = {
-      id: `act-${Date.now()}`,
-      timestamp: 'Just now',
-      agent: agentMap[category] || 'Marketing Agent',
-      action,
-      impact,
-      category,
-    };
-
-    setLogs((prev) => [newLog, ...prev]);
-  };
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 4000);
-  };
-
-  const handleToggleCurrency = () => {
-    const next = currency === 'ETB' ? 'USD' : 'ETB';
-    setCurrency(next);
-    showToast(next === 'ETB' ? 'የገንዘብ አይነት ወደ የኢትዮጵያ ብር (ETB) ተቀይሯል' : 'Switched to US Dollar (USD $)');
-  };
-
-  // Run a complete autonomous omnichannel cycle
-  const handleRunAutonomousCycle = () => {
-    setIsCycleRunning(true);
-    showToast(lang === 'am' ? 'ራስ-ሰር ዘመቻ ተጀምሯል፡ 5 ወኪሎች በመስራት ላይ ናቸው...' : 'Autonomous cycle initiated: 5 agents optimizing cross-channel performance...');
-
-    setTimeout(() => {
-      // 1. Marketing optimization
-      setCampaigns((prev) =>
-        prev.map((c) => {
-          if (c.id === 'ab-101') {
-            return {
-              ...c,
-              confidence: 98.2,
-              variants: c.variants.map((v) =>
-                v.id === 'var-b'
-                  ? { ...v, trafficSplit: 85, conversions: v.conversions + 6, spend: v.spend + 140 }
-                  : { ...v, trafficSplit: 15 }
-              ),
-            };
-          }
-          return c;
-        })
-      );
-
-      // 2. Cross-Platform Engine
-      setChannels((prev) =>
-        prev.map((ch) => {
-          if (ch.channel === 'TikTok Ads') {
-            return { ...ch, monthlySpend: ch.monthlySpend + 1200, roas: 4.42, lastOptimizedTime: 'Just now' };
-          }
-          if (ch.channel === 'Meta Ads') {
-            return { ...ch, monthlySpend: ch.monthlySpend - 800, creativeFatigueScore: 'Nominal' as const, lastOptimizedTime: 'Just now' };
-          }
-          return { ...ch, lastOptimizedTime: 'Just now' };
-        })
-      );
-
-      // 3. Inventory sync update
-      setInventory((prev) =>
-        prev.map((item) => ({
-          ...item,
-          channels: item.channels.map((ch) => ({
-            ...ch,
-            lastSyncTime: 'Just now',
-            synced: true,
-          })),
-        }))
-      );
-
-      // 4. New activity log entries
-      const cycleTimestamp = 'Just now';
-      const newEntries: AgentActivityLog[] = [
-        {
-          id: `act-${Date.now()}-1`,
-          timestamp: cycleTimestamp,
-          agent: 'Marketing Agent',
-          action: 'Optimization Engine shifted Telebirr & TikTok Shop ads to 4.42x ROAS & refreshed creative hook.',
-          impact: 'Blended cross-platform ROAS elevated to 4.12x (+18% ROI lift)',
-          category: 'Optimization',
-        },
-        {
-          id: `act-${Date.now()}-2`,
-          timestamp: cycleTimestamp,
-          agent: 'Inventory Agent',
-          action: 'Synchronized stock parity across Shopify, Amazon & TikTok Shop without human intervention.',
-          impact: '0 inventory discrepancy across 1,420 listings',
-          category: 'Sync',
-        },
-        {
-          id: `act-${Date.now()}-3`,
-          timestamp: cycleTimestamp,
-          agent: 'Salesforce Agent',
-          action: 'Verified 2-way Salesforce synchronization on 48 enterprise contacts and pipeline stages.',
-          impact: 'All BANT qualification records up-to-date',
-          category: 'Lead Routing',
-        },
-      ];
-
-      setLogs((prev) => [...newEntries, ...prev]);
-      setAgentCycleCount((c) => c + 1);
-      setIsCycleRunning(false);
-      showToast(lang === 'am' ? 'የወኪሎች ዑደት ተጠናቋል፡ በጀት ተደልድሏል፣ 0 ስህተት።' : 'Autonomous engine cycle complete: budget rebalanced, 0 errors.');
-    }, 1600);
-  };
-
-  // Open Auth modal in specific mode
-  const handleOpenAuth = (mode: AuthMode = 'signin') => {
-    setAuthModalMode(mode);
-    setIsAuthModalOpen(true);
-  };
-
-  // Main view content component
-  const renderMainContent = () => (
-    <>
-      {activeTab === 'overview' && (
-        <OverviewView
-          onNavigate={setActiveTab}
-          logs={logs}
-          onTriggerCycle={handleRunAutonomousCycle}
-          isCycleRunning={isCycleRunning}
-          lang={lang}
-          currency={currency}
-          onOpenLangModal={() => setIsLangModalOpen(true)}
-        />
-      )}
-
-      {activeTab === 'engine' && (
-        <CampaignOptimizationEngine
-          channels={channels}
-          onUpdateChannels={setChannels}
-          onAddAgentLog={handleAddAgentLog}
-        />
-      )}
-
-      {activeTab === 'videoaudio' && (
-        <VideoAudioMarketingAgent
-          lang={lang}
-          currency={currency}
-          onAddAgentLog={handleAddAgentLog}
-        />
-      )}
-
-      {activeTab === 'marketing' && (
-        <MarketingAgentView
-          campaigns={campaigns}
-          onUpdateCampaigns={setCampaigns}
-          onAddAgentLog={handleAddAgentLog}
-        />
-      )}
-
-      {activeTab === 'social' && (
-        <SocialAgentView
-          posts={posts}
-          engagementItems={engagement}
-          onUpdatePosts={setPosts}
-          onUpdateEngagement={setEngagement}
-          onAddAgentLog={handleAddAgentLog}
-        />
-      )}
-
-      {activeTab === 'crm' && (
-        <CrmSalesforceView
-          leads={leads}
-          onUpdateLeads={setLeads}
-          onAddAgentLog={handleAddAgentLog}
-        />
-      )}
-
-      {activeTab === 'inventory' && (
-        <InventoryChannelsView
-          inventory={inventory}
-          onUpdateInventory={setInventory}
-          onAddAgentLog={handleAddAgentLog}
-          lang={lang}
-          currency={currency}
-        />
-      )}
-
-      {activeTab === 'business' && (
-        <BusinessAdvisorView
-          onAddAgentLog={handleAddAgentLog}
-        />
-      )}
-
-      {activeTab === 'database' && (
-        <DatabaseConnectorsView
-          lang={lang}
-          currency={currency}
-          onAddAgentLog={handleAddAgentLog}
-        />
-      )}
-
-      {activeTab === 'seo' && (
-        <EthiopianSeoAgentView
-          lang={lang}
-          onAddAgentLog={handleAddAgentLog}
-        />
-      )}
-    </>
-  );
-
-  return (
-    <div className="min-h-screen bg-black text-slate-100 flex flex-col font-sans selection:bg-orange-500 selection:text-white">
-      {/* Top Bar for Desktop */}
-      <Header
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        onRunAutonomousCycle={handleRunAutonomousCycle}
-        isCycleRunning={isCycleRunning}
-        agentCycleCount={agentCycleCount}
-        lang={lang}
-        onOpenLangModal={() => setIsLangModalOpen(true)}
-        currency={currency}
-        onToggleCurrency={handleToggleCurrency}
-        isMobileFrame={isMobileFrame}
-        onToggleMobileFrame={() => setIsMobileFrame(!isMobileFrame)}
-        onOpenVoiceAssistant={() => setIsVoiceModalOpen(true)}
-        currentUser={currentUser}
-        onOpenAuthModal={() => handleOpenAuth('signin')}
-        onOpenProfileModal={() => setIsProfileModalOpen(true)}
-      />
-
-      {/* When in Device Frame Mockup Mode (Simulates an iPhone 16 Pro on desktop) */}
-      {isMobileFrame ? (
-        <div className="flex-1 flex flex-col items-center justify-center py-6 px-4 bg-slate-950">
-          <div className="text-center mb-3">
-            <span className="text-xs font-semibold text-orange-400 bg-orange-950/60 border border-orange-800/40 px-3 py-1 rounded-full">
-              📱 WiseSell AI Mobile App Platform (Ethiopia Multilingual)
-            </span>
-          </div>
-
-          {/* Smartphone Frame Chassis */}
-          <div className="w-[390px] h-[812px] bg-black rounded-[48px] border-[10px] border-slate-800 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col relative ring-1 ring-slate-700">
-            {/* Top Speaker / Dynamic Island */}
-            <div className="h-9 bg-black flex items-center justify-between px-6 pt-1 text-[11px] font-mono text-white select-none z-50 shrink-0">
-              <span>9:41</span>
-              <div className="w-24 h-4 bg-black border border-slate-800 rounded-full" />
-              <div className="flex items-center gap-1 text-[10px]">
-                <span>5G</span>
-                <span>100%</span>
-              </div>
-            </div>
-
-            {/* Mobile In-App Top Bar */}
-            <MobileTopBar
-              lang={lang}
-              onOpenLangModal={() => setIsLangModalOpen(true)}
-              currency={currency}
-              onToggleCurrency={handleToggleCurrency}
-              onRunAutonomousCycle={handleRunAutonomousCycle}
-              isCycleRunning={isCycleRunning}
-              agentCycleCount={agentCycleCount}
-              onOpenVoiceAssistant={() => setIsVoiceModalOpen(true)}
-              currentUser={currentUser}
-              onOpenAuthModal={() => handleOpenAuth('signin')}
-              onOpenProfileModal={() => setIsProfileModalOpen(true)}
-            />
-
-            {/* Scrollable Mobile App Body */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 pb-24 space-y-4">
-              {renderMainContent()}
-            </div>
-
-            {/* Fixed Mobile Bottom Nav inside Chassis */}
-            <MobileBottomNav
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-              lang={lang}
-            />
-          </div>
-        </div>
-      ) : (
-        /* Full-Width Responsive Mobile Viewport */
-        <div className="flex-1 flex flex-col pb-20 sm:pb-8">
-          <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-8">
-            {renderMainContent()}
-          </main>
-
-          {/* Floating Mobile Voice Command Button (for fast 1-tap voice access) */}
-          <button
-            onClick={() => setIsVoiceModalOpen(true)}
-            className="fixed bottom-20 right-4 sm:hidden z-40 w-12 h-12 rounded-full bg-gradient-to-tr from-orange-500 to-blue-600 text-white shadow-2xl flex items-center justify-center border-2 border-white/20 active:scale-95 transition-transform cursor-pointer"
-            title="Speak Voice Commands (Web Speech API)"
-          >
-            <Mic className="w-5 h-5 text-white animate-pulse" />
-          </button>
-
-          {/* Fixed Bottom Tab Bar for Mobile Viewports */}
-          <MobileBottomNav
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            lang={lang}
-          />
-        </div>
-      )}
-
-      {/* Multilingual Ethiopian Language Selector Modal */}
-      <LanguageSelectorModal
-        isOpen={isLangModalOpen}
-        onClose={() => setIsLangModalOpen(false)}
-        currentLang={lang}
-        onSelectLanguage={(selected) => {
-          setLang(selected);
-          showToast(`ቋንቋ ተቀይሯል / Language changed to ${selected.toUpperCase()}`);
-        }}
-      />
-
-      {/* Web Speech API Voice Command Assistant Modal */}
-      <VoiceCommandAssistant
-        isOpen={isVoiceModalOpen}
-        onClose={() => setIsVoiceModalOpen(false)}
-        onNavigateTab={(t) => {
-          setActiveTab(t);
-          setIsVoiceModalOpen(false);
-        }}
-        onTriggerCycle={handleRunAutonomousCycle}
-        onToggleCurrency={handleToggleCurrency}
-        onOpenLangModal={() => {
-          setIsVoiceModalOpen(false);
-          setIsLangModalOpen(true);
-        }}
-        lang={lang}
-        showToast={showToast}
-      />
-
-      {/* Authentication Suite Modal (Sign in, Sign in confirm, Sign up, Password reset confirm, Sign out confirm) */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        currentUser={currentUser}
-        initialMode={authModalMode}
-        onLoginSuccess={(user) => {
-          setCurrentUser(user);
-          setIsAuthModalOpen(false);
-        }}
-        onLogoutSuccess={async () => {
-          await signOut(auth);
-          setCurrentUser(null);
-          setIsAuthModalOpen(false);
-        }}
-        showToast={showToast}
-      />
-
-      {/* User Profile & Security Modal */}
-      {currentUser && (
-        <UserProfileModal
-          isOpen={isProfileModalOpen}
-          onClose={() => setIsProfileModalOpen(false)}
-          user={currentUser}
-          onOpenPasswordReset={() => {
-            setIsProfileModalOpen(false);
-            handleOpenAuth('forgot-password');
-          }}
-          onTriggerSignOut={() => {
-            setIsProfileModalOpen(false);
-            handleOpenAuth('signout-confirm');
-          }}
-        />
-      )}
-
-      {/* Toast Alert */}
-      {toastMessage && (
-        <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 bg-black border border-orange-500/60 text-white text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom-2 duration-200">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
-      {/* Footer (Desktop) */}
-      <footer className="hidden sm:block border-t border-slate-900 bg-black py-6 text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-white">WiseSell AI</span>
-            <span>·</span>
-            <span>በኢትዮጵያና በዓለም አቀፍ ደረጃ (Ethiopia & Global)</span>
-            <span>·</span>
-            <span className="text-orange-500">Orange</span>
-            <span>·</span>
-            <span className="text-blue-500">Blue</span>
-            <span>·</span>
-            <span className="text-white">White</span>
-            <span>·</span>
-            <span className="text-slate-400">Black</span>
-          </div>
-          <div className="flex items-center gap-3 text-slate-400">
-            <span>Telebirr ቴሌብር</span>
-            <span>·</span>
-            <span>CBE Birr</span>
-            <span>·</span>
-            <span>Chapa ቻፓ</span>
-            <span>·</span>
-            <span>Telegram</span>
-            <span>·</span>
-            <span>Shopify</span>
-            <span>·</span>
-            <span>TikTok Shop</span>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
+  const saveStock = (next: Stock[]) => { setStock(next); try { localStorage.setItem('wise-sell-stock', JSON.stringify(next)); } catch {} };
+  async function authenticate(e: React.FormEvent) {
+    e.preventDefault(); setAuthError('');
+    try { if (register) await createUserWithEmailAndPassword(auth, email.trim(), password); else await signInWithEmailAndPassword(auth, email.trim(), password); }
+    catch (err: any) { setAuthError(err?.message || 'Authentication failed'); }
+  }
+  async function runAgent(e: React.FormEvent) {
+    e.preventDefault(); if (!message.trim() || !user) return;
+    setBusy(true); setError(''); setAnswer('');
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(`${API}/api/agents/${agentId}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ message: `${agent.prompt}\n\nRespond in ${lang === 'am' ? 'Amharic' : lang === 'om' ? 'Afaan Oromo' : 'English'}.\n\nUser request: ${message.trim()}` }) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.detail || data?.error || `Request failed (${res.status})`);
+      if (!data.answer) throw new Error('The AI service returned no answer. Please try again.');
+      setAnswer(data.answer);
+    } catch (err: any) { setError(err?.message || 'Could not contact the AI service.'); }
+    finally { setBusy(false); }
+  }
+  function addStock(e: React.FormEvent) {
+    e.preventDefault(); if (!itemName.trim()) return;
+    saveStock([{ id: crypto.randomUUID(), name: itemName.trim(), quantity: Math.max(0, Number(quantity) || 0), price: Math.max(0, Number(price) || 0), listed: false }, ...stock]);
+    setItemName(''); setQuantity('1'); setPrice('');
+  }
+  function toggleListing(id: string) { saveStock(stock.map(s => s.id === id ? { ...s, listed: !s.listed } : s)); }
+  function removeStock(id: string) { saveStock(stock.filter(s => s.id !== id)); }
+  if (!user) return <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-5"><form onSubmit={authenticate} className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-7 space-y-5"><div className="flex items-center gap-3"><div className="rounded-2xl bg-emerald-500 p-3"><Bot size={26}/></div><div><h1 className="text-2xl font-bold">Wise Sell AI</h1><p className="text-sm text-slate-400">Business growth workspace</p></div></div><div className="flex justify-end"><select aria-label={t.language} value={lang} onChange={e => setLang(e.target.value as Lang)} className="rounded-xl bg-slate-800 p-2 text-sm"><option value="en">English</option><option value="am">አማርኛ</option><option value="om">Afaan Oromo</option></select></div><h2 className="text-lg font-semibold">{register ? 'Create account' : t.signIn}</h2><input required type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder={t.email} className="w-full rounded-xl bg-slate-800 p-3 outline-none"/><input required minLength={6} type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder={t.password} className="w-full rounded-xl bg-slate-800 p-3 outline-none"/>{authError && <p className="text-sm text-rose-400">{authError}</p>}<button className="w-full rounded-xl bg-emerald-500 p-3 font-semibold text-slate-950">{register ? 'Create account' : t.signIn}</button><button type="button" onClick={()=>setRegister(!register)} className="w-full text-sm text-emerald-300">{register ? 'Already have an account? Sign in' : 'Create a new account'}</button><p className="text-xs text-slate-500">Secure sign-in is provided by Firebase Authentication.</p></form></div>;
+  return <div className="min-h-screen bg-slate-950 text-slate-100"><header className="sticky top-0 z-20 border-b border-slate-800 bg-slate-950/95 backdrop-blur"><div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3"><div className="flex items-center gap-3"><div className="rounded-xl bg-emerald-500 p-2 text-slate-950"><Bot size={22}/></div><div><h1 className="font-bold">Wise Sell AI</h1><p className="text-xs text-slate-400">AI-powered business platform · Ethiopia</p></div></div><div className="flex items-center gap-2"><Languages size={16}/><select value={lang} onChange={e=>setLang(e.target.value as Lang)} className="max-w-28 rounded-lg bg-slate-800 p-2 text-xs"><option value="en">English</option><option value="am">አማርኛ</option><option value="om">Afaan Oromo</option></select><button onClick={()=>signOut(auth)} title={t.signOut} className="rounded-lg bg-slate-800 p-2"><LogOut size={17}/></button></div></div></header>
+  <div className="mx-auto grid max-w-7xl gap-5 p-4 md:grid-cols-[245px_1fr]"><aside className="space-y-2"><button onClick={()=>setSection('workspace')} className={`w-full rounded-xl p-3 text-left ${section==='workspace'?'bg-emerald-500 text-slate-950':'bg-slate-900'}`}><MessageSquare className="mr-2 inline" size={17}/>{t.workspace}</button>{AGENTS.map(a=><button key={a.id} onClick={()=>{setSection('workspace');setAgentId(a.id);setAnswer('');setError('')}} className={`w-full rounded-xl p-3 text-left text-sm ${section==='workspace'&&agentId===a.id?'bg-slate-800 text-emerald-300':'text-slate-300 hover:bg-slate-900'}`}><a.icon className="mr-2 inline" size={16}/>{a.name}</button>)}<div className="my-3 border-t border-slate-800"/><button onClick={()=>setSection('inventory')} className={`w-full rounded-xl p-3 text-left ${section==='inventory'?'bg-emerald-500 text-slate-950':'bg-slate-900'}`}><Boxes className="mr-2 inline" size={17}/>{t.inventory}</button><button onClick={()=>setSection('marketplace')} className={`w-full rounded-xl p-3 text-left ${section==='marketplace'?'bg-emerald-500 text-slate-950':'bg-slate-900'}`}><Store className="mr-2 inline" size={17}/>{t.marketplace}</button></aside>
+  <main className="min-w-0 space-y-5">{section==='workspace' ? <><section className="rounded-2xl border border-slate-800 bg-slate-900 p-5"><div className="flex items-start gap-3"><agent.icon size={26} className="mt-1 text-emerald-400"/><div><h2 className="text-xl font-bold">{agent.name}</h2><p className="text-sm text-slate-400">{agent.desc}</p></div></div><div className="mt-4 grid gap-2 sm:grid-cols-3">{AGENTS.map(a=><button key={a.id} onClick={()=>{setAgentId(a.id);setAnswer('');setError('')}} className={`rounded-xl border p-3 text-left text-xs ${agentId===a.id?'border-emerald-500 bg-emerald-500/10':'border-slate-700 bg-slate-950'}`}>{a.name}</button>)}</div></section><form onSubmit={runAgent} className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-3"><label className="text-sm font-semibold">Your business request</label><textarea value={message} onChange={e=>setMessage(e.target.value)} rows={5} placeholder={t.placeholder} className="w-full resize-y rounded-xl border border-slate-700 bg-slate-950 p-3 outline-none focus:border-emerald-500"/><button disabled={busy||!message.trim()} className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 p-3 font-semibold text-slate-950 disabled:opacity-50">{busy?<><LoaderCircle className="animate-spin" size={18}/>Working...</>:<><Send size={17}/>{t.send}</>}</button></form>{error&&<div className="rounded-xl border border-rose-800 bg-rose-950/40 p-4 text-sm text-rose-300">{error}</div>}{answer&&<section className="rounded-2xl border border-emerald-800 bg-slate-900 p-5"><h3 className="mb-3 font-semibold text-emerald-300">AI response</h3><div className="whitespace-pre-wrap text-sm leading-7">{answer}</div></section>}</> : section==='inventory' ? <><section className="rounded-2xl border border-slate-800 bg-slate-900 p-5"><h2 className="text-xl font-bold">{t.inventory}</h2><p className="mt-1 text-sm text-slate-400">Manage your own product records on this device.</p><form onSubmit={addStock} className="mt-4 grid gap-3 sm:grid-cols-4"><input required value={itemName} onChange={e=>setItemName(e.target.value)} placeholder={t.item} className="rounded-xl bg-slate-950 p-3 sm:col-span-2"/><input type="number" min="0" value={quantity} onChange={e=>setQuantity(e.target.value)} placeholder={t.qty} className="rounded-xl bg-slate-950 p-3"/><input type="number" min="0" value={price} onChange={e=>setPrice(e.target.value)} placeholder={t.price} className="rounded-xl bg-slate-950 p-3"/><button className="rounded-xl bg-emerald-500 p-3 font-semibold text-slate-950 sm:col-span-4"><Plus className="mr-2 inline" size={17}/>{t.add}</button></form></section><section className="space-y-3">{stock.length===0?<p className="rounded-xl bg-slate-900 p-5 text-slate-400">{t.empty}</p>:stock.map(s=><div key={s.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900 p-4"><div className="flex items-center gap-3"><Package className="text-emerald-400"/><div><p className="font-semibold">{s.name}</p><p className="text-xs text-slate-400">{s.quantity} units · {s.price.toLocaleString()} ETB</p></div></div><div className="flex gap-2"><button onClick={()=>toggleListing(s.id)} className="rounded-lg bg-slate-800 px-3 py-2 text-xs">{s.listed?'Unlist':'List in marketplace'}</button><button onClick={()=>removeStock(s.id)} className="rounded-lg bg-rose-950 p-2 text-rose-300"><Trash2 size={16}/></button></div></div>)}</section></> : <><section className="rounded-2xl border border-slate-800 bg-slate-900 p-5"><h2 className="text-xl font-bold">{t.listing}</h2><p className="mt-1 text-sm text-slate-400">Listings are currently stored on this device; public buyer/seller publishing requires a marketplace backend.</p></section>{stock.filter(s=>s.listed).length===0?<p className="rounded-xl bg-slate-900 p-5 text-slate-400">{t.empty}</p>:stock.filter(s=>s.listed).map(s=><div key={s.id} className="rounded-xl border border-slate-800 bg-slate-900 p-4"><p className="font-semibold">{s.name}</p><p className="text-sm text-slate-400">{s.price.toLocaleString()} ETB · Stock: {s.quantity}</p></div>)}</>}</main></div></div>;
 }
