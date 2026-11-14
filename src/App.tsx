@@ -35,7 +35,8 @@ import { MarketingAgentView } from './components/MarketingAgentView';
 import { SocialAgentView } from './components/SocialAgentView';
 import { CrmSalesforceView } from './components/CrmSalesforceView';
 import { InventoryChannelsView } from './components/InventoryChannelsView';
-import { BusinessAdvisorView } from './components/BusinessAdvisorView';\nimport { AgentWorkTeamsView } from './components/AgentWorkTeamsView';
+import { BusinessAdvisorView } from './components/BusinessAdvisorView';
+import { AgentWorkTeamsView } from './components/AgentWorkTeamsView';
 import { DatabaseConnectorsView } from './components/DatabaseConnectorsView';
 import { EthiopianSeoAgentView } from './components/EthiopianSeoAgentView';
 import { VoiceCommandAssistant } from './components/VoiceCommandAssistant';
@@ -230,7 +231,9 @@ export default function App() {
         />
       )}
 
-      {activeTab === 'agents' && <AgentWorkTeamsView />}\n\n      {activeTab === 'business' && (
+      {activeTab === 'agents' && <AgentWorkTeamsView />}
+
+      {activeTab === 'business' && (
         <BusinessAdvisorView
           onAddAgentLog={handleAddAgentLog}
         />
