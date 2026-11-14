@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { CampaignABTest, EthiopianRegionalHub, EthiopianAdLanguage } from '../types';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { db, testFirebaseConnection } from '../firebase/config';
+import { auth, db, testFirebaseConnection } from '../firebase/config';
 
 interface MarketingAgentViewProps {
   campaigns: CampaignABTest[];
@@ -115,9 +115,11 @@ export const MarketingAgentView: React.FC<MarketingAgentViewProps> = ({
   const handleRunAiCroAudit = async () => {
     setIsAiLoading(true);
     try {
-      const res = await fetch('/api/ai/marketing-advisor', {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error('Please sign in again to use Marketing AI.');
+      const res = await fetch('https://wise-sell-ai-app2.abdico-veiws22.workers.dev/api/ai/marketing-advisor', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           campaignName: selectedCampaign.name,
           channel: selectedCampaign.channel,
