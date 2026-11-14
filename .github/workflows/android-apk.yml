@@ -9,6 +9,7 @@ on:
       - 'index.html'
       - 'package.json'
       - 'capacitor.config.ts'
+      - 'firebase-applet-config.json'
       - '.github/workflows/android-apk.yml'
 
 permissions:
