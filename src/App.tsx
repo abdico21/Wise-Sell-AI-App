@@ -89,10 +89,9 @@ export default function App() {
   async function removeStock(id: string) {
     if (!user?.uid) return;
     try {
-      await Promise.all([
-        deleteDoc(doc(db, 'users', user.uid, 'inventory', id)),
-        deleteDoc(doc(db, 'marketplace_listings', id))
-      ]);
+      const item = stock.find(s => s.id === id);
+      await deleteDoc(doc(db, 'users', user.uid, 'inventory', id));
+      if (item?.listed) await deleteDoc(doc(db, 'marketplace_listings', id));
       setError('');
     } catch (err: any) { setError('Could not remove item: ' + (err?.message || 'Unknown error')); }
   }
