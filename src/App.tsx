@@ -400,6 +400,7 @@ export default function App() {
         <OrdersView
           orders={orders}
           inventory={inventory}
+          isAuthenticated={!!currentUser}
           onUpdateOrders={handleUpdateOrders}
           onAddAgentLog={handleAddAgentLog}
         />
