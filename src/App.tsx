@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth } from './firebase/config';
+import { auth, db } from './firebase/config';
+import { collection, deleteDoc, doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 import { Bot, BriefcaseBusiness, ChartNoAxesCombined, Megaphone, Search, Share2, Clapperboard, Boxes, Store, Send, LogOut, Languages, Plus, Trash2, Package, MessageSquare, LoaderCircle } from 'lucide-react';
 
 const API = 'https://wise-sell-ai-app2.abdico-veiws22.workers.dev';
@@ -40,9 +41,13 @@ export default function App() {
   const agent = useMemo(() => AGENTS.find(a => a.id === agentId) || AGENTS[0], [agentId]);
   useEffect(() => onAuthStateChanged(auth, setUser), []);
   useEffect(() => {
-    try { const saved = localStorage.getItem('wise-sell-stock'); if (saved) setStock(JSON.parse(saved)); } catch {}
-  }, []);
-  const saveStock = (next: Stock[]) => { setStock(next); try { localStorage.setItem('wise-sell-stock', JSON.stringify(next)); } catch {} };
+    if (!user?.uid) { setStock([]); return; }
+    const inventoryRef = collection(db, 'users', user.uid, 'inventory');
+    const unsubscribe = onSnapshot(inventoryRef, snapshot => {
+      setStock(snapshot.docs.map(item => ({ id: item.id, ...item.data() } as Stock)));
+    }, err => setError('Could not sync inventory: ' + err.message));
+    return unsubscribe;
+  }, [user?.uid]);
   async function authenticate(e: React.FormEvent) {
     e.preventDefault(); setAuthError('');
     try { if (register) await createUserWithEmailAndPassword(auth, email.trim(), password); else await signInWithEmailAndPassword(auth, email.trim(), password); }
@@ -61,13 +66,36 @@ export default function App() {
     } catch (err: any) { setError(err?.message || 'Could not contact the AI service.'); }
     finally { setBusy(false); }
   }
-  function addStock(e: React.FormEvent) {
-    e.preventDefault(); if (!itemName.trim()) return;
-    saveStock([{ id: crypto.randomUUID(), name: itemName.trim(), quantity: Math.max(0, Number(quantity) || 0), price: Math.max(0, Number(price) || 0), listed: false }, ...stock]);
-    setItemName(''); setQuantity('1'); setPrice('');
+  async function addStock(e: React.FormEvent) {
+    e.preventDefault(); if (!itemName.trim() || !user?.uid) return;
+    const item: Stock = { id: crypto.randomUUID(), name: itemName.trim(), quantity: Math.max(0, Number(quantity) || 0), price: Math.max(0, Number(price) || 0), listed: false };
+    try {
+      await setDoc(doc(db, 'users', user.uid, 'inventory', item.id), { ...item, ownerId: user.uid, updatedAt: serverTimestamp() });
+      setItemName(''); setQuantity('1'); setPrice(''); setError('');
+    } catch (err: any) { setError('Could not save inventory item: ' + (err?.message || 'Unknown error')); }
   }
-  function toggleListing(id: string) { saveStock(stock.map(s => s.id === id ? { ...s, listed: !s.listed } : s)); }
-  function removeStock(id: string) { saveStock(stock.filter(s => s.id !== id)); }
+  async function toggleListing(id: string) {
+    if (!user?.uid) return;
+    const item = stock.find(s => s.id === id); if (!item) return;
+    const nextListed = !item.listed;
+    try {
+      await setDoc(doc(db, 'users', user.uid, 'inventory', id), { ...item, listed: nextListed, ownerId: user.uid, updatedAt: serverTimestamp() });
+      const listingRef = doc(db, 'marketplace_listings', id);
+      if (nextListed) await setDoc(listingRef, { itemId: id, ownerId: user.uid, name: item.name, quantity: item.quantity, price: item.price, currency: 'ETB', status: 'active', updatedAt: serverTimestamp() });
+      else await deleteDoc(listingRef);
+      setError('');
+    } catch (err: any) { setError('Could not update marketplace listing: ' + (err?.message || 'Unknown error')); }
+  }
+  async function removeStock(id: string) {
+    if (!user?.uid) return;
+    try {
+      await Promise.all([
+        deleteDoc(doc(db, 'users', user.uid, 'inventory', id)),
+        deleteDoc(doc(db, 'marketplace_listings', id))
+      ]);
+      setError('');
+    } catch (err: any) { setError('Could not remove item: ' + (err?.message || 'Unknown error')); }
+  }
   if (!user) return <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-5"><form onSubmit={authenticate} className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-7 space-y-5"><div className="flex items-center gap-3"><div className="rounded-2xl bg-emerald-500 p-3"><Bot size={26}/></div><div><h1 className="text-2xl font-bold">Wise Sell AI</h1><p className="text-sm text-slate-400">Business growth workspace</p></div></div><div className="flex justify-end"><select aria-label={t.language} value={lang} onChange={e => setLang(e.target.value as Lang)} className="rounded-xl bg-slate-800 p-2 text-sm"><option value="en">English</option><option value="am">አማርኛ</option><option value="om">Afaan Oromo</option></select></div><h2 className="text-lg font-semibold">{register ? 'Create account' : t.signIn}</h2><input required type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder={t.email} className="w-full rounded-xl bg-slate-800 p-3 outline-none"/><input required minLength={6} type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder={t.password} className="w-full rounded-xl bg-slate-800 p-3 outline-none"/>{authError && <p className="text-sm text-rose-400">{authError}</p>}<button className="w-full rounded-xl bg-emerald-500 p-3 font-semibold text-slate-950">{register ? 'Create account' : t.signIn}</button><button type="button" onClick={()=>setRegister(!register)} className="w-full text-sm text-emerald-300">{register ? 'Already have an account? Sign in' : 'Create a new account'}</button><p className="text-xs text-slate-500">Secure sign-in is provided by Firebase Authentication.</p></form></div>;
   return <div className="min-h-screen bg-slate-950 text-slate-100"><header className="sticky top-0 z-20 border-b border-slate-800 bg-slate-950/95 backdrop-blur"><div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3"><div className="flex items-center gap-3"><div className="rounded-xl bg-emerald-500 p-2 text-slate-950"><Bot size={22}/></div><div><h1 className="font-bold">Wise Sell AI</h1><p className="text-xs text-slate-400">AI-powered business platform · Ethiopia</p></div></div><div className="flex items-center gap-2"><Languages size={16}/><select value={lang} onChange={e=>setLang(e.target.value as Lang)} className="max-w-28 rounded-lg bg-slate-800 p-2 text-xs"><option value="en">English</option><option value="am">አማርኛ</option><option value="om">Afaan Oromo</option></select><button onClick={()=>signOut(auth)} title={t.signOut} className="rounded-lg bg-slate-800 p-2"><LogOut size={17}/></button></div></div></header>
   <div className="mx-auto grid max-w-7xl gap-5 p-4 md:grid-cols-[245px_1fr]"><aside className="space-y-2"><button onClick={()=>setSection('workspace')} className={`w-full rounded-xl p-3 text-left ${section==='workspace'?'bg-emerald-500 text-slate-950':'bg-slate-900'}`}><MessageSquare className="mr-2 inline" size={17}/>{t.workspace}</button>{AGENTS.map(a=><button key={a.id} onClick={()=>{setSection('workspace');setAgentId(a.id);setAnswer('');setError('')}} className={`w-full rounded-xl p-3 text-left text-sm ${section==='workspace'&&agentId===a.id?'bg-slate-800 text-emerald-300':'text-slate-300 hover:bg-slate-900'}`}><a.icon className="mr-2 inline" size={16}/>{a.name}</button>)}<div className="my-3 border-t border-slate-800"/><button onClick={()=>setSection('inventory')} className={`w-full rounded-xl p-3 text-left ${section==='inventory'?'bg-emerald-500 text-slate-950':'bg-slate-900'}`}><Boxes className="mr-2 inline" size={17}/>{t.inventory}</button><button onClick={()=>setSection('marketplace')} className={`w-full rounded-xl p-3 text-left ${section==='marketplace'?'bg-emerald-500 text-slate-950':'bg-slate-900'}`}><Store className="mr-2 inline" size={17}/>{t.marketplace}</button></aside>
