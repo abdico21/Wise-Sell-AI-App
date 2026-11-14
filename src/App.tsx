@@ -150,89 +150,11 @@ export default function App() {
     showToast(next === 'ETB' ? 'የገንዘብ አይነት ወደ የኢትዮጵያ ብር (ETB) ተቀይሯል' : 'Switched to US Dollar (USD $)');
   };
 
-  // Run a complete autonomous omnichannel cycle
+  // This button is a demo-only preview until live provider integrations are configured.
   const handleRunAutonomousCycle = () => {
-    setIsCycleRunning(true);
-    showToast(lang === 'am' ? 'ራስ-ሰር ዘመቻ ተጀምሯል፡ 5 ወኪሎች በመስራት ላይ ናቸው...' : 'Demo cycle started: six agent work teams are being simulated; live channel actions require connected provider accounts.');
-
-    setTimeout(() => {
-      // 1. Marketing optimization
-      setCampaigns((prev) =>
-        prev.map((c) => {
-          if (c.id === 'ab-101') {
-            return {
-              ...c,
-              confidence: 98.2,
-              variants: c.variants.map((v) =>
-                v.id === 'var-b'
-                  ? { ...v, trafficSplit: 85, conversions: v.conversions + 6, spend: v.spend + 140 }
-                  : { ...v, trafficSplit: 15 }
-              ),
-            };
-          }
-          return c;
-        })
-      );
-
-      // 2. Cross-Platform Engine
-      setChannels((prev) =>
-        prev.map((ch) => {
-          if (ch.channel === 'TikTok Ads') {
-            return { ...ch, monthlySpend: ch.monthlySpend + 1200, roas: 4.42, lastOptimizedTime: 'Just now' };
-          }
-          if (ch.channel === 'Meta Ads') {
-            return { ...ch, monthlySpend: ch.monthlySpend - 800, creativeFatigueScore: 'Nominal' as const, lastOptimizedTime: 'Just now' };
-          }
-          return { ...ch, lastOptimizedTime: 'Just now' };
-        })
-      );
-
-      // 3. Inventory sync update
-      setInventory((prev) =>
-        prev.map((item) => ({
-          ...item,
-          channels: item.channels.map((ch) => ({
-            ...ch,
-            lastSyncTime: 'Just now',
-            synced: true,
-          })),
-        }))
-      );
-
-      // 4. New activity log entries
-      const cycleTimestamp = 'Just now';
-      const newEntries: AgentActivityLog[] = [
-        {
-          id: `act-${Date.now()}-1`,
-          timestamp: cycleTimestamp,
-          agent: 'Marketing Agent',
-          action: 'Demo optimization event; live advertising performance was not changed.',
-          impact: 'Blended cross-platform ROAS elevated to 4.12x (+18% ROI lift)',
-          category: 'Optimization',
-        },
-        {
-          id: `act-${Date.now()}-2`,
-          timestamp: cycleTimestamp,
-          agent: 'Inventory Agent',
-          action: 'Demo inventory synchronization event; no external inventory provider was contacted.',
-          impact: '0 inventory discrepancy across 1,420 listings',
-          category: 'Sync',
-        },
-        {
-          id: `act-${Date.now()}-3`,
-          timestamp: cycleTimestamp,
-          agent: 'Salesforce Agent',
-          action: 'Demo CRM activity event; no external CRM records were changed.',
-          impact: 'All BANT qualification records up-to-date',
-          category: 'Lead Routing',
-        },
-      ];
-
-      setLogs((prev) => [...newEntries, ...prev]);
-      setAgentCycleCount((c) => c + 1);
-      setIsCycleRunning(false);
-      showToast(lang === 'am' ? 'የወኪሎች ዑደት ተጠናቋል፡ በጀት ተደልድሏል፣ 0 ስህተት።' : 'Demo cycle complete. No external ads, posts, orders, or inventory systems were changed.');
-    }, 1600);
+    showToast(lang === 'am'
+      ? 'የማሳያ ዑደት ብቻ ነው፤ የውጭ ስርዓቶች አልተቀየሩም።'
+      : 'Demo preview only. Connect and authorize channels before any live posts, ads, orders or inventory changes.');
   };
 
   // Open Auth modal in specific mode
