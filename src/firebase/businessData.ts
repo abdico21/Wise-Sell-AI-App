@@ -5,6 +5,7 @@ import {
   doc,
   onSnapshot,
   query,
+  runTransaction,
   serverTimestamp,
   updateDoc,
   where,
@@ -88,4 +89,79 @@ export async function updateBusinessRecord<T>(
 export async function deleteBusinessRecord(recordId: string): Promise<void> {
   requireUserId();
   await deleteDoc(doc(db, 'business_records', recordId));
+}
+
+
+/**
+ * Atomically fulfill an order and deduct its stock exactly once.
+ * Both records must belong to the current user and be saved in business_records.
+ */
+export async function fulfillSalesOrder(
+  orderRecordId: string,
+  productRecordId: string,
+  expectedProductId: string,
+): Promise<{ alreadyFulfilled: boolean; remainingStock: number }> {
+  const ownerId = requireUserId();
+  const orderRef = doc(db, 'business_records', orderRecordId);
+  const productRef = doc(db, 'business_records', productRecordId);
+
+  return runTransaction(db, async transaction => {
+    const [orderSnapshot, productSnapshot] = await Promise.all([
+      transaction.get(orderRef),
+      transaction.get(productRef),
+    ]);
+
+    if (!orderSnapshot.exists() || !productSnapshot.exists()) {
+      throw new Error('The saved order or inventory product could not be found.');
+    }
+
+    const orderRecord = orderSnapshot.data() as Omit<BusinessRecord<SalesOrder>, 'id'>;
+    const productRecord = productSnapshot.data() as Omit<BusinessRecord<InventoryItem>, 'id'>;
+    if (orderRecord.ownerId !== ownerId || orderRecord.recordType !== 'order' ||
+        productRecord.ownerId !== ownerId || productRecord.recordType !== 'product') {
+      throw new Error('You do not have permission to fulfill this order.');
+    }
+
+    const order = orderRecord.data;
+    const product = productRecord.data;
+    if (order.productId !== expectedProductId || product.id !== expectedProductId) {
+      throw new Error('The order product does not match the selected inventory record.');
+    }
+    if (order.status === 'Fulfilled') {
+      return { alreadyFulfilled: true, remainingStock: product.totalStock };
+    }
+    if (order.status === 'Cancelled') {
+      throw new Error('A cancelled order cannot be fulfilled.');
+    }
+    if (!Number.isInteger(order.quantity) || order.quantity < 1 ||
+        !Number.isFinite(product.totalStock) || product.totalStock < order.quantity) {
+      throw new Error('Insufficient stock. Update inventory before fulfilling this order.');
+    }
+
+    const remainingStock = product.totalStock - order.quantity;
+    const updatedProduct: InventoryItem = {
+      ...product,
+      totalStock: remainingStock,
+      stockStatus: remainingStock <= 0
+        ? 'Critical Reorder'
+        : remainingStock <= product.reorderPoint
+          ? 'Low Stock'
+          : 'In Stock',
+    };
+    const updatedOrder: SalesOrder = {
+      ...order,
+      status: 'Fulfilled',
+    };
+
+    transaction.update(productRef, {
+      data: updatedProduct,
+      updatedAt: serverTimestamp(),
+    });
+    transaction.update(orderRef, {
+      data: updatedOrder,
+      updatedAt: serverTimestamp(),
+    });
+
+    return { alreadyFulfilled: false, remainingStock };
+  });
 }
