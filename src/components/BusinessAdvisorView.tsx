@@ -39,28 +39,36 @@ export const BusinessAdvisorView: React.FC<BusinessAdvisorViewProps> = ({
     try {
       const token = await auth.currentUser?.getIdToken();
       if (!token) throw new Error('Please sign in again to use the AI Business Assistant.');
-      const res = await fetch('https://wise-sell-ai-app2.abdico-veiws22.workers.dev/api/ai/business-growth', {
+      const prompt = [
+        'Create a practical business growth analysis using only the scenario information below.',
+        `Monthly sales / GMV: ${gmv}`,
+        `Gross margin: ${grossMargin}`,
+        `Customer acquisition cost: ${cac}`,
+        `Customer lifetime value: ${ltv}`,
+        `Advertising return on ad spend: ${adRoas}`,
+        `Target growth: ${targetGrowth}`,
+        'Give an executive summary, five prioritized actions, key risks, and a simple 30-day action plan. Clearly label assumptions and do not invent business data.'
+      ].join('\\n');
+      const res = await fetch('https://wise-sell-ai-app2.abdico-veiws22.workers.dev/api/agents/business-manager', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          gmv,
-          grossMargin,
-          cac,
-          ltv,
-          adRoas,
-          targetGrowth,
-        }),
+        body: JSON.stringify({ message: prompt }),
       });
       const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.detail || data.error || `AI request failed (${res.status}).`);
-      if (data.success) {
-        setGrowthReport(data.data);
-        onAddAgentLog(
-          'AI Business Assistant generated executive strategic growth roadmap',
-          'Generated recommendations from the scenario inputs supplied by the user',
-          'Financial'
-        );
+      if (!res.ok || !data.ok || typeof data.answer !== 'string' || !data.answer.trim()) {
+        throw new Error(data.detail || data.error || `AI request failed (${res.status}). Please retry.`);
       }
+      setGrowthReport({
+        executiveSummary: data.answer,
+        strategicRecommendations: [],
+        scenarioSimulation: 'Review the 30-day action plan in the AI response and compare progress with your actual business records.',
+        urgentRisk: 'Validate all assumptions against your real sales, costs, and inventory records before making financial decisions.'
+      });
+      onAddAgentLog(
+        'AI Business Assistant generated a strategic growth analysis',
+        'Recommendations based on the scenario inputs supplied by the user',
+        'Financial'
+      );
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unable to reach the AI service. Please try again.';
       setAnalysisError(message);
