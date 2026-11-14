@@ -7,7 +7,6 @@ interface OrdersViewProps {
   inventory: InventoryItem[];
   onUpdateOrders: (orders: SalesOrder[]) => void;
   onAddAgentLog: (action: string, impact: string, category: 'Financial' | 'Sync') => void;
-  currency: 'ETB' | 'USD';
 }
 
 export const OrdersView: React.FC<OrdersViewProps> = ({ orders, inventory, onUpdateOrders, onAddAgentLog, currency }) => {
@@ -35,7 +34,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ orders, inventory, onUpd
     const order: SalesOrder = {
       id, orderNumber: `WS-${Date.now().toString().slice(-8)}`, customerName: customerName.trim(),
       customerContact: customerContact.trim(), productId: selectedProduct.id, productName: selectedProduct.title,
-      quantity, unitPrice: selectedProduct.price, totalAmount: total, currency,
+      quantity, unitPrice: selectedProduct.price, totalAmount: total, currency: 'ETB',
       deliveryLocation: deliveryLocation.trim(), paymentMethod, status: 'Pending', createdAt: new Date().toISOString(),
     };
     onUpdateOrders([order, ...orders]);
@@ -65,7 +64,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ orders, inventory, onUpd
         <label className="text-xs text-slate-300">Payment method<select value={paymentMethod} onChange={e=>setPaymentMethod(e.target.value as SalesOrder['paymentMethod'])} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 p-3 text-sm text-white">{['Telebirr','CBE Birr','Cash on Delivery','Bank Transfer','Other'].map(v=><option key={v}>{v}</option>)}</select></label>
         <label className="text-xs text-slate-300 sm:col-span-2">Delivery location<input value={deliveryLocation} onChange={e=>setDeliveryLocation(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 p-3 text-sm text-white" placeholder="City / woreda / delivery address"/></label>
       </div>
-      <div className="text-sm text-slate-200">Order total: <strong>{currency} {total.toLocaleString()}</strong></div>
+      <div className="text-sm text-slate-200">Order total: <strong>ETB {total.toLocaleString()}</strong></div>
       {formError && <p className="text-xs text-rose-400">{formError}</p>}
       <button type="submit" className="rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-bold text-white">Save order</button>
       <p className="text-[11px] text-amber-300">Orders are recorded as Pending. This version does not charge payments or deduct stock automatically.</p>
