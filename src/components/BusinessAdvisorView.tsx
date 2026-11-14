@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { auth } from '../firebase/config';
 import { 
   Bot, 
   Sparkles, 
@@ -34,9 +35,11 @@ export const BusinessAdvisorView: React.FC<BusinessAdvisorViewProps> = ({
   const handleRunStrategicAnalysis = async () => {
     setIsAnalyzing(true);
     try {
-      const res = await fetch('/api/ai/business-growth', {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error('Please sign in again to use the AI Business Assistant.');
+      const res = await fetch('https://wise-sell-ai-app2.abdico-veiws22.workers.dev/api/ai/business-growth', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           gmv,
           grossMargin,
