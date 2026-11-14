@@ -94,6 +94,7 @@ export default function App() {
   const productDocumentIds = useRef<Map<string, string>>(new Map());
   const [posts, setPosts] = useState<SocialPost[]>(initialSocialPosts);
   const [engagement, setEngagement] = useState<CustomerEngagementItem[]>(initialCustomerEngagement);
+  const customerDocumentIds = useRef<Map<string, string>>(new Map());
   const [logs, setLogs] = useState<AgentActivityLog[]>(initialActivityLogs);
 
   // Load only this user's saved products. Demo catalog remains visible when no saved products exist.
@@ -131,6 +132,45 @@ export default function App() {
       showToast(error instanceof Error ? error.message : 'Could not load saved leads.');
     }
   }, [currentUser?.id]);
+
+  // Load this user's saved customer conversations from the omnichannel inbox.
+  useEffect(() => {
+    if (!currentUser) {
+      customerDocumentIds.current.clear();
+      setEngagement(initialCustomerEngagement);
+      return;
+    }
+    try {
+      return watchBusinessRecords<CustomerEngagementItem>('customer', (records) => {
+        customerDocumentIds.current = new Map(records.map(record => [record.data.id, record.id]));
+        if (records.length > 0) setEngagement(records.map(record => record.data));
+      }, (error) => showToast(`Could not load saved customers: ${error.message}`));
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Could not load saved customers.');
+    }
+  }, [currentUser?.id]);
+
+  const handleUpdateEngagement = (nextItems: CustomerEngagementItem[]) => {
+    const previousById = new Map(engagement.map(item => [item.id, item]));
+    setEngagement(nextItems);
+    if (!currentUser) return;
+
+    nextItems.forEach(item => {
+      const documentId = customerDocumentIds.current.get(item.id);
+      const previous = previousById.get(item.id);
+      if (documentId) {
+        if (JSON.stringify(previous) !== JSON.stringify(item)) {
+          void updateBusinessRecord(documentId, item).catch(error =>
+            showToast(error instanceof Error ? error.message : 'Customer conversation update failed.'));
+        }
+      } else if (!previous) {
+        void createBusinessRecord('customer', item).then(id => {
+          customerDocumentIds.current.set(item.id, id);
+        }).catch(error =>
+          showToast(error instanceof Error ? error.message : 'Customer conversation could not be saved.'));
+      }
+    });
+  };
 
   const handleUpdateLeads = (nextLeads: LeadRecord[]) => {
     const previousById = new Map(leads.map(item => [item.id, item]));
@@ -292,7 +332,7 @@ export default function App() {
           posts={posts}
           engagementItems={engagement}
           onUpdatePosts={setPosts}
-          onUpdateEngagement={setEngagement}
+          onUpdateEngagement={handleUpdateEngagement}
           onAddAgentLog={handleAddAgentLog}
         />
       )}
