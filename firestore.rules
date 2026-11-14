@@ -15,7 +15,6 @@ service cloud.firestore {
         && request.resource.data.currency == 'ETB'
         && request.resource.data.status == 'active';
     }
-
     match /users/{userId}/inventory/{itemId} {
       allow read, delete: if owns(userId);
       allow create, update: if owns(userId)
@@ -28,22 +27,43 @@ service cloud.firestore {
         && request.resource.data.price is number
         && request.resource.data.price >= 0;
     }
-
     match /marketplace_listings/{listingId} {
-      allow read: if true;
+      allow read: if resource.data.status == 'active';
       allow create: if signedIn() && validListing();
-      allow update: if signedIn()
-        && resource.data.ownerId == request.auth.uid
-        && validListing();
+      allow update: if signedIn() && resource.data.ownerId == request.auth.uid && validListing();
       allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
     }
-
-    match /users/{userId} {
-      allow read, write: if owns(userId);
+    match /marketplace_orders/{orderId} {
+      function listingExists() {
+        return exists(/databases/$(database)/documents/marketplace_listings/$(request.resource.data.listingId));
+      }
+      function listingMatches() {
+        return listingExists()
+          && get(/databases/$(database)/documents/marketplace_listings/$(request.resource.data.listingId)).data.status == 'active'
+          && get(/databases/$(database)/documents/marketplace_listings/$(request.resource.data.listingId)).data.ownerId == request.resource.data.sellerId
+          && get(/databases/$(database)/documents/marketplace_listings/$(request.resource.data.listingId)).data.name == request.resource.data.itemName
+          && get(/databases/$(database)/documents/marketplace_listings/$(request.resource.data.listingId)).data.price == request.resource.data.unitPrice
+          && request.resource.data.quantity <= get(/databases/$(database)/documents/marketplace_listings/$(request.resource.data.listingId)).data.quantity;
+      }
+      allow create: if signedIn()
+        && request.resource.data.buyerId == request.auth.uid
+        && request.resource.data.sellerId != request.auth.uid
+        && request.resource.data.quantity is int
+        && request.resource.data.quantity > 0
+        && request.resource.data.unitPrice is number
+        && request.resource.data.totalPrice == request.resource.data.quantity * request.resource.data.unitPrice
+        && request.resource.data.currency == 'ETB'
+        && request.resource.data.status == 'pending'
+        && listingMatches();
+      allow read: if signedIn() && (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid);
+      allow update: if signedIn()
+        && resource.data.sellerId == request.auth.uid
+        && resource.data.status == 'pending'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+        && request.resource.data.status in ['accepted', 'rejected'];
+      allow delete: if false;
     }
-
-    match /{document=**} {
-      allow read, write: if false;
-    }
+    match /users/{userId} { allow read, write: if owns(userId); }
+    match /{document=**} { allow read, write: if false; }
   }
 }
