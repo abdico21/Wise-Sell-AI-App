@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { SalesOrder, InventoryItem } from '../types';
-import { ShoppingCart, PlusCircle, CheckCircle2, PackageCheck } from 'lucide-react';
+import { ShoppingCart, PlusCircle, PackageCheck } from 'lucide-react';
 
 interface OrdersViewProps {
   orders: SalesOrder[];
   inventory: InventoryItem[];
+  isAuthenticated: boolean;
   onUpdateOrders: (orders: SalesOrder[]) => void;
   onAddAgentLog: (action: string, impact: string, category: 'Financial' | 'Sync') => void;
 }
 
-export const OrdersView: React.FC<OrdersViewProps> = ({ orders, inventory, onUpdateOrders, onAddAgentLog, currency }) => {
+export const OrdersView: React.FC<OrdersViewProps> = ({ orders, inventory, isAuthenticated, onUpdateOrders, onAddAgentLog }) => {
   const [customerName, setCustomerName] = useState('');
   const [customerContact, setCustomerContact] = useState('');
   const [productId, setProductId] = useState(inventory[0]?.id || '');
@@ -22,6 +23,10 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ orders, inventory, onUpd
 
   const createOrder = (event: React.FormEvent) => {
     event.preventDefault();
+    if (!isAuthenticated) {
+      setFormError('Sign in to save orders securely to your business account.');
+      return;
+    }
     if (!customerName.trim() || !customerContact.trim() || !selectedProduct || quantity < 1) {
       setFormError('Enter customer name, contact, a product, and a valid quantity.');
       return;
@@ -38,7 +43,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ orders, inventory, onUpd
       deliveryLocation: deliveryLocation.trim(), paymentMethod, status: 'Pending', createdAt: new Date().toISOString(),
     };
     onUpdateOrders([order, ...orders]);
-    onAddAgentLog(`Sales order ${order.orderNumber} recorded`, `${quantity} × ${selectedProduct.title}; ${currency} ${total.toLocaleString()}. Stock is not deducted until fulfillment is implemented.`, 'Financial');
+    onAddAgentLog(`Sales order ${order.orderNumber} recorded`, `${quantity} × ${selectedProduct.title}; ETB ${total.toLocaleString()}. Stock is not deducted automatically.`, 'Financial');
     setCustomerName(''); setCustomerContact(''); setQuantity(1); setDeliveryLocation(''); setFormError('');
   };
 
@@ -54,6 +59,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ orders, inventory, onUpd
         {[['Total orders',orders.length],['Pending',orders.filter(o=>o.status==='Pending').length],['Confirmed',orders.filter(o=>o.status==='Confirmed').length],['Fulfilled',orders.filter(o=>o.status==='Fulfilled').length]].map(([label,value])=><div key={label} className="rounded-xl border border-slate-800 bg-slate-950 p-3"><div className="text-xs text-slate-400">{label}</div><div className="mt-1 text-xl font-bold text-white">{value}</div></div>)}
       </div>
     </div>
+    {!isAuthenticated && <div className="rounded-xl border border-amber-700/50 bg-amber-950/30 p-3 text-xs text-amber-200">Sign in to create and save orders. Your orders are stored in your account, not just on this device.</div>}
     <form onSubmit={createOrder} className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-4">
       <h2 className="flex items-center gap-2 font-semibold text-white"><PlusCircle className="h-4 w-4 text-orange-400"/>Create buyer order</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -66,7 +72,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ orders, inventory, onUpd
       </div>
       <div className="text-sm text-slate-200">Order total: <strong>ETB {total.toLocaleString()}</strong></div>
       {formError && <p className="text-xs text-rose-400">{formError}</p>}
-      <button type="submit" className="rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-bold text-white">Save order</button>
+      <button type="submit" disabled={!isAuthenticated} className="rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40">Save order</button>
       <p className="text-[11px] text-amber-300">Orders are recorded as Pending. This version does not charge payments or deduct stock automatically.</p>
     </form>
     <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-3"><h2 className="font-semibold text-white">Order register ({orders.length})</h2>
