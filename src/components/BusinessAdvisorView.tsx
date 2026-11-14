@@ -23,6 +23,7 @@ export const BusinessAdvisorView: React.FC<BusinessAdvisorViewProps> = ({
 }) => {
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [growthReport, setGrowthReport] = useState<any>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   // Financial inputs for scenario simulation
   const [gmv, setGmv] = useState<string>('$384,200');
@@ -34,6 +35,7 @@ export const BusinessAdvisorView: React.FC<BusinessAdvisorViewProps> = ({
 
   const handleRunStrategicAnalysis = async () => {
     setIsAnalyzing(true);
+    setAnalysisError(null);
     try {
       const token = await auth.currentUser?.getIdToken();
       if (!token) throw new Error('Please sign in again to use the AI Business Assistant.');
@@ -50,16 +52,18 @@ export const BusinessAdvisorView: React.FC<BusinessAdvisorViewProps> = ({
         }),
       });
       const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.detail || data.error || `AI request failed (${res.status}).`);
       if (data.success) {
         setGrowthReport(data.data);
         onAddAgentLog(
           'AI Business Assistant generated executive strategic growth roadmap',
-          `Forecasted +$42,000 incremental monthly GMV via TikTok Shop catalog expansion`,
+          'Generated recommendations from the scenario inputs supplied by the user',
           'Financial'
         );
       }
     } catch (err) {
-      console.error(err);
+      const message = err instanceof Error ? err.message : 'Unable to reach the AI service. Please try again.';
+      setAnalysisError(message);
     } finally {
       setIsAnalyzing(false);
     }
@@ -101,6 +105,8 @@ export const BusinessAdvisorView: React.FC<BusinessAdvisorViewProps> = ({
           )}
         </button>
       </div>
+
+      {analysisError && <div role="alert" className="p-4 rounded-lg bg-red-950/40 border border-red-800 text-sm text-red-200">AI analysis could not be completed: {analysisError}</div>}
 
       {/* Financial Health & Unit Economics Strip */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
