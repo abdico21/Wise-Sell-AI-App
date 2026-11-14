@@ -49,7 +49,7 @@ export const BusinessAdvisorView: React.FC<BusinessAdvisorViewProps> = ({
         `Target growth: ${targetGrowth}`,
         'Give an executive summary, five prioritized actions, key risks, and a simple 30-day action plan. Clearly label assumptions and do not invent business data.'
       ].join('\\n');
-      const res = await fetch('https://wise-sell-ai-app2.abdico-veiws22.workers.dev/api/agents/business-manager', {
+      const res = await fetch('https://wise-sell-ai-app2.abdico-veiws22.workers.dev/api/agents/business-assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ message: prompt }),
@@ -91,7 +91,7 @@ export const BusinessAdvisorView: React.FC<BusinessAdvisorViewProps> = ({
             Financial Trends & Strategic Growth Advisor
           </h1>
           <p className="text-sm text-slate-400 mt-1 max-w-2xl">
-            WiseSell AI continuously analyzes margins, unit economics, working capital runway, and channel profitability to formulate strategic growth recommendations.
+            Enter your business figures to request an AI analysis. The assistant only uses the scenario values you provide; live sales, inventory and channel data are not yet connected here.
           </p>
         </div>
 
