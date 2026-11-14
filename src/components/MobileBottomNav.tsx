@@ -10,6 +10,7 @@ import {
   MessageSquare, 
   Users, 
   Package, 
+  ShoppingCart,
   Bot, 
   X,
   ChevronRight,
@@ -36,6 +37,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     { id: 'social', label: t.social, desc: 'Auto-Pilot DM & Cross-Channel Content', icon: MessageSquare },
     { id: 'crm', label: t.crm, desc: 'BANT Qualification & Salesforce 2-Way Sync', icon: Users },
     { id: 'inventory', label: t.inventory, desc: 'Multi-Channel Stock Parity & PO Restock', icon: Package },
+    { id: 'orders', label: 'Orders', desc: 'Create buyer orders and track fulfillment', icon: ShoppingCart },
     { id: 'business', label: t.business, desc: 'Strategic Financial Trends & Growth AI', icon: Bot },
     { id: 'seo', label: t.seo, desc: 'Google.com.et Culturally Resonant Content', icon: Globe },\n    { id: 'agents', label: 'AI Teams', desc: 'Run the six authenticated AI work teams', icon: Users },
   ];
