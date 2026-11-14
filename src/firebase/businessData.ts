@@ -97,7 +97,7 @@ export async function deleteBusinessRecord(recordId: string): Promise<void> {
  * Atomically fulfill an order and deduct its stock exactly once.
  * Both records must belong to the current user and be saved in business_records.
  */
-export async function fulfillSalesOrder(
+export function fulfillSalesOrder(
   orderRecordId: string,
   productRecordId: string,
   expectedProductId: string,
