@@ -37,7 +37,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     { id: 'crm', label: t.crm, desc: 'BANT Qualification & Salesforce 2-Way Sync', icon: Users },
     { id: 'inventory', label: t.inventory, desc: 'Multi-Channel Stock Parity & PO Restock', icon: Package },
     { id: 'business', label: t.business, desc: 'Strategic Financial Trends & Growth AI', icon: Bot },
-    { id: 'seo', label: t.seo, desc: 'Google.com.et Culturally Resonant Content', icon: Globe },
+    { id: 'seo', label: t.seo, desc: 'Google.com.et Culturally Resonant Content', icon: Globe },\n    { id: 'agents', label: 'AI Teams', desc: 'Run the six authenticated AI work teams', icon: Users },
   ];
 
   const isMoreActive = moreTabs.some((t) => t.id === activeTab);
