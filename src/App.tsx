@@ -104,7 +104,7 @@ export default function App() {
       if (res.connected) {
         handleAddAgentLog(
           'Firebase Cloud Firestore connected & security rules active',
-          'Provisioned on lunar-option-jbvhw (europe-west2) with strict ABAC rules',
+          'Connected to Firebase project gen-lang-client-0645056984; Firestore server read verified',
           'Automation'
         );
       }
@@ -153,7 +153,7 @@ export default function App() {
   // Run a complete autonomous omnichannel cycle
   const handleRunAutonomousCycle = () => {
     setIsCycleRunning(true);
-    showToast(lang === 'am' ? 'ራስ-ሰር ዘመቻ ተጀምሯል፡ 5 ወኪሎች በመስራት ላይ ናቸው...' : 'Autonomous cycle initiated: 5 agents optimizing cross-channel performance...');
+    showToast(lang === 'am' ? 'ራስ-ሰር ዘመቻ ተጀምሯል፡ 5 ወኪሎች በመስራት ላይ ናቸው...' : 'Demo cycle started: six agent work teams are being simulated; live channel actions require connected provider accounts.');
 
     setTimeout(() => {
       // 1. Marketing optimization
@@ -206,7 +206,7 @@ export default function App() {
           id: `act-${Date.now()}-1`,
           timestamp: cycleTimestamp,
           agent: 'Marketing Agent',
-          action: 'Optimization Engine shifted Telebirr & TikTok Shop ads to 4.42x ROAS & refreshed creative hook.',
+          action: 'Demo optimization event; live advertising performance was not changed.',
           impact: 'Blended cross-platform ROAS elevated to 4.12x (+18% ROI lift)',
           category: 'Optimization',
         },
@@ -214,7 +214,7 @@ export default function App() {
           id: `act-${Date.now()}-2`,
           timestamp: cycleTimestamp,
           agent: 'Inventory Agent',
-          action: 'Synchronized stock parity across Shopify, Amazon & TikTok Shop without human intervention.',
+          action: 'Demo inventory synchronization event; no external inventory provider was contacted.',
           impact: '0 inventory discrepancy across 1,420 listings',
           category: 'Sync',
         },
@@ -222,7 +222,7 @@ export default function App() {
           id: `act-${Date.now()}-3`,
           timestamp: cycleTimestamp,
           agent: 'Salesforce Agent',
-          action: 'Verified 2-way Salesforce synchronization on 48 enterprise contacts and pipeline stages.',
+          action: 'Demo CRM activity event; no external CRM records were changed.',
           impact: 'All BANT qualification records up-to-date',
           category: 'Lead Routing',
         },
@@ -231,7 +231,7 @@ export default function App() {
       setLogs((prev) => [...newEntries, ...prev]);
       setAgentCycleCount((c) => c + 1);
       setIsCycleRunning(false);
-      showToast(lang === 'am' ? 'የወኪሎች ዑደት ተጠናቋል፡ በጀት ተደልድሏል፣ 0 ስህተት።' : 'Autonomous engine cycle complete: budget rebalanced, 0 errors.');
+      showToast(lang === 'am' ? 'የወኪሎች ዑደት ተጠናቋል፡ በጀት ተደልድሏል፣ 0 ስህተት።' : 'Demo cycle complete. No external ads, posts, orders, or inventory systems were changed.');
     }, 1600);
   };
 
