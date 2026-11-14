@@ -265,7 +265,7 @@ export interface InventoryItem {
   supplierLeadDays: number;
 }
 
-export type EthiopianSocialPlatform = 'Telegram' | 'TikTok' | 'WhatsApp' | 'Facebook' | 'LinkedIn' | 'Instagram' | 'X';
+export type EthiopianSocialPlatform = 'Telegram' | 'TikTok' | 'WhatsApp' | 'Facebook' | 'LinkedIn' | 'Instagram' | 'X' | 'YouTube';
 
 export interface MultilingualPostContent {
   hook: string;
