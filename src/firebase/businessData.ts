@@ -43,14 +43,15 @@ export function watchBusinessRecords<T>(
   const q = query(
     recordsCollection(),
     where('ownerId', '==', ownerId),
-    where('recordType', '==', recordType),
   );
 
   return onSnapshot(q, snapshot => {
-    onRecords(snapshot.docs.map(item => ({
-      id: item.id,
-      ...(item.data() as Omit<BusinessRecord<T>, 'id'>),
-    })));
+    onRecords(snapshot.docs
+      .filter(item => item.data().recordType === recordType)
+      .map(item => ({
+        id: item.id,
+        ...(item.data() as Omit<BusinessRecord<T>, 'id'>),
+      })));
   }, error => onError?.(error));
 }
 
