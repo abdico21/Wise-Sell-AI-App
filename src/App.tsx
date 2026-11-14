@@ -56,7 +56,7 @@ export default function App() {
   }, [user?.uid]);
   useEffect(() => {
     if (!user?.uid) { setPublicListings([]); return; }
-    const unsubscribe = onSnapshot(collection(db, 'marketplace_listings'), snapshot => {
+    const unsubscribe = onSnapshot(query(collection(db, 'marketplace_listings'), where('status', '==', 'active')), snapshot => {
       setPublicListings(snapshot.docs.map(item => ({ id: item.id, ...item.data() } as MarketplaceListing)).filter(item => item.status === 'active'));
     }, err => setError('Could not load marketplace: ' + err.message));
     return unsubscribe;
