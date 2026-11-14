@@ -89,6 +89,7 @@ export default function App() {
   const [channels, setChannels] = useState<CrossPlatformChannelTelemetry[]>(initialChannelTelemetry);
   const [campaigns, setCampaigns] = useState<CampaignABTest[]>(initialCampaignTests);
   const [leads, setLeads] = useState<LeadRecord[]>(initialLeads);
+  const leadDocumentIds = useRef<Map<string, string>>(new Map());
   const [inventory, setInventory] = useState<InventoryItem[]>(initialInventory);
   const productDocumentIds = useRef<Map<string, string>>(new Map());
   const [posts, setPosts] = useState<SocialPost[]>(initialSocialPosts);
@@ -113,6 +114,45 @@ export default function App() {
       showToast(error instanceof Error ? error.message : 'Could not load saved products.');
     }
   }, [currentUser?.id]);
+
+  // Load this user's saved sales leads without importing the demo pipeline.
+  useEffect(() => {
+    if (!currentUser) {
+      leadDocumentIds.current.clear();
+      setLeads(initialLeads);
+      return;
+    }
+    try {
+      return watchBusinessRecords<LeadRecord>('lead', (records) => {
+        leadDocumentIds.current = new Map(records.map(record => [record.data.id, record.id]));
+        if (records.length > 0) setLeads(records.map(record => record.data));
+      }, (error) => showToast(`Could not load saved leads: ${error.message}`));
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Could not load saved leads.');
+    }
+  }, [currentUser?.id]);
+
+  const handleUpdateLeads = (nextLeads: LeadRecord[]) => {
+    const previousById = new Map(leads.map(item => [item.id, item]));
+    setLeads(nextLeads);
+    if (!currentUser) return;
+
+    nextLeads.forEach(item => {
+      const documentId = leadDocumentIds.current.get(item.id);
+      const previous = previousById.get(item.id);
+      if (documentId) {
+        if (JSON.stringify(previous) !== JSON.stringify(item)) {
+          void updateBusinessRecord(documentId, item).catch(error =>
+            showToast(error instanceof Error ? error.message : 'Lead update failed.'));
+        }
+      } else if (!previous) {
+        void createBusinessRecord('lead', item).then(id => {
+          leadDocumentIds.current.set(item.id, id);
+        }).catch(error =>
+          showToast(error instanceof Error ? error.message : 'Lead could not be saved.'));
+      }
+    });
+  };
 
   // Persist newly added products and edits to products already saved in Firestore.
   const handleUpdateInventory = (nextInventory: InventoryItem[]) => {
@@ -260,7 +300,7 @@ export default function App() {
       {activeTab === 'crm' && (
         <CrmSalesforceView
           leads={leads}
-          onUpdateLeads={setLeads}
+          onUpdateLeads={handleUpdateLeads}
           onAddAgentLog={handleAddAgentLog}
         />
       )}
