@@ -3,8 +3,19 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function owns(userId) { return signedIn() && request.auth.uid == userId; }
+    function validListing() {
+      return request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 160
+        && request.resource.data.quantity is number
+        && request.resource.data.quantity >= 0
+        && request.resource.data.price is number
+        && request.resource.data.price >= 0
+        && request.resource.data.currency == 'ETB'
+        && request.resource.data.status == 'active';
+    }
 
-    // Private inventory belongs to one authenticated seller.
     match /users/{userId}/inventory/{itemId} {
       allow read, delete: if owns(userId);
       allow create, update: if owns(userId)
@@ -18,29 +29,19 @@ service cloud.firestore {
         && request.resource.data.price >= 0;
     }
 
-    // Public marketplace listings; only the owning seller can change/remove one.
     match /marketplace_listings/{listingId} {
       allow read: if true;
-      allow create, update: if signedIn()
-        && request.resource.data.ownerId == request.auth.uid
-        && request.resource.data.name is string
-        && request.resource.data.name.size() > 0
-        && request.resource.data.name.size() <= 160
-        && request.resource.data.quantity is number
-        && request.resource.data.quantity >= 0
-        && request.resource.data.price is number
-        && request.resource.data.price >= 0
-        && request.resource.data.currency == 'ETB'
-        && request.resource.data.status == 'active';
+      allow create: if signedIn() && validListing();
+      allow update: if signedIn()
+        && resource.data.ownerId == request.auth.uid
+        && validListing();
       allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
     }
 
-    // User profile is private to its owner.
     match /users/{userId} {
       allow read, write: if owns(userId);
     }
 
-    // No other collections are accessible until explicitly secured.
     match /{document=**} {
       allow read, write: if false;
     }
