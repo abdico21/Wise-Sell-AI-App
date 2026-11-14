@@ -59,9 +59,9 @@ interface SocialGraphConnector {
   id: string;
   name: string;
   platform: EthiopianSocialPlatform;
-  status: 'Connected' | 'Syncing' | 'Degraded';
+  status: 'Connected' | 'Syncing' | 'Degraded' | 'Not connected';
   latencyMs: number;
-  webhookStatus: 'Active' | 'Listening';
+  webhookStatus: 'Active' | 'Listening' | 'Not configured';
   eventsProcessedToday: number;
   apiEndpoint: string;
   authScope: string;
@@ -99,13 +99,13 @@ export const SocialAgentView: React.FC<SocialAgentViewProps> = ({
       id: 'conn-tg',
       name: 'Telegram Bot & Channel Graph API',
       platform: 'Telegram',
-      status: 'Connected',
+      status: 'Not connected',
       latencyMs: 24,
-      webhookStatus: 'Active',
-      eventsProcessedToday: 1840,
+      webhookStatus: 'Not configured',
+      eventsProcessedToday: 0,
       apiEndpoint: 'https://api.telegram.org/bot[REDACTED]/setWebhook',
       authScope: 'channel:post, inline_keyboard, telebirr_checkout_hook',
-      lastPing: 'Just now',
+      lastPing: 'Not tested',
     },
     {
       id: 'conn-tt',
@@ -114,10 +114,10 @@ export const SocialAgentView: React.FC<SocialAgentViewProps> = ({
       status: 'Connected',
       latencyMs: 48,
       webhookStatus: 'Active',
-      eventsProcessedToday: 3210,
+      eventsProcessedToday: 0,
       apiEndpoint: 'https://business-api.tiktok.com/open_api/v1.3/spark_ads/',
       authScope: 'video.upload, sound.attribution, comment.reply, analytics.read',
-      lastPing: '1 min ago',
+      lastPing: 'Not tested',
     },
     {
       id: 'conn-wa',
@@ -126,10 +126,10 @@ export const SocialAgentView: React.FC<SocialAgentViewProps> = ({
       status: 'Connected',
       latencyMs: 32,
       webhookStatus: 'Active',
-      eventsProcessedToday: 980,
+      eventsProcessedToday: 0,
       apiEndpoint: 'https://graph.facebook.com/v19.0/whatsapp_business_account/',
       authScope: 'whatsapp_business_messaging, catalog_management, phone_number_verify',
-      lastPing: 'Just now',
+      lastPing: 'Not tested',
     },
     {
       id: 'conn-fb',
@@ -138,10 +138,10 @@ export const SocialAgentView: React.FC<SocialAgentViewProps> = ({
       status: 'Connected',
       latencyMs: 41,
       webhookStatus: 'Active',
-      eventsProcessedToday: 2450,
+      eventsProcessedToday: 0,
       apiEndpoint: 'https://graph.facebook.com/v19.0/me/feed',
       authScope: 'pages_manage_posts, pages_read_engagement, publish_video',
-      lastPing: '2 mins ago',
+      lastPing: 'Not tested',
     },
     {
       id: 'conn-li',
@@ -150,10 +150,10 @@ export const SocialAgentView: React.FC<SocialAgentViewProps> = ({
       status: 'Connected',
       latencyMs: 65,
       webhookStatus: 'Active',
-      eventsProcessedToday: 340,
+      eventsProcessedToday: 0,
       apiEndpoint: 'https://api.linkedin.com/v2/ugcPosts',
       authScope: 'w_organization_social, r_organization_social, b2b_analytics',
-      lastPing: '4 mins ago',
+      lastPing: 'Not tested',
     },
   ]);
   const [pingingId, setPingingId] = useState<string | null>(null);
@@ -192,30 +192,7 @@ export const SocialAgentView: React.FC<SocialAgentViewProps> = ({
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
-  // Ping a Social Graph Connector
-  const handlePingConnector = (connectorId: string) => {
-    setPingingId(connectorId);
-    setTimeout(() => {
-      setGraphConnectors((prev) =>
-        prev.map((conn) => {
-          if (conn.id !== connectorId) return conn;
-          const newLatency = Math.floor(Math.random() * 25) + 20;
-          return {
-            ...conn,
-            latencyMs: newLatency,
-            lastPing: 'Just now (Ping verified 200 OK)',
-            eventsProcessedToday: conn.eventsProcessedToday + 1,
-          };
-        })
-      );
-      setPingingId(null);
-      onAddAgentLog(
-        `Verified live handshake on ${graphConnectors.find((c) => c.id === connectorId)?.name}`,
-        'Webhook latency tested and OAuth token refreshed',
-        'Automation'
-      );
-    }, 600);
-  };
+  // External provider OAuth/webhook setup is not implemented yet; do not simulate successful pings.
 
   // Generate Image Prompt
   const handleGenerateImagePrompt = async () => {
@@ -578,7 +555,7 @@ export const SocialAgentView: React.FC<SocialAgentViewProps> = ({
             <div className="flex items-center gap-2">
               <span className="px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>5/5 Graph Connectors Healthy</span>
+                <span>External connections require setup</span>
               </span>
             </div>
           </div>
@@ -594,8 +571,8 @@ export const SocialAgentView: React.FC<SocialAgentViewProps> = ({
                     <span className="text-xs font-bold text-blue-400 px-2 py-0.5 rounded bg-blue-950/80 border border-blue-800/40">
                       {conn.platform}
                     </span>
-                    <span className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="flex items-center gap-1.5 text-[11px] font-mono text-amber-300 bg-amber-950/40 border border-amber-800/40 px-2 py-0.5 rounded">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                       {conn.status} · {conn.latencyMs}ms
                     </span>
                   </div>
@@ -610,7 +587,7 @@ export const SocialAgentView: React.FC<SocialAgentViewProps> = ({
                   <div className="space-y-1.5 text-xs">
                     <div className="flex justify-between text-slate-400 text-[11px]">
                       <span>Webhook Stream:</span>
-                      <span className="text-emerald-300 font-mono font-medium">{conn.webhookStatus}</span>
+                      <span className="text-amber-300 font-mono font-medium">{conn.webhookStatus}</span>
                     </div>
                     <div className="flex justify-between text-slate-400 text-[11px]">
                       <span>Events Handled Today:</span>
@@ -625,12 +602,11 @@ export const SocialAgentView: React.FC<SocialAgentViewProps> = ({
                 <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between">
                   <span className="text-[10px] text-slate-500 font-mono">{conn.lastPing}</span>
                   <button
-                    onClick={() => handlePingConnector(conn.id)}
-                    disabled={pingingId === conn.id}
+                    disabled
                     className="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${pingingId === conn.id ? 'animate-spin' : ''}`} />
-                    <span>{pingingId === conn.id ? 'Pinging...' : 'Ping Graph API'}</span>
+                    <span>Setup required</span>
                   </button>
                 </div>
               </div>
