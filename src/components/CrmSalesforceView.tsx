@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { auth } from '../firebase/config';
 import { 
   Users, 
   Sparkles, 
@@ -67,9 +68,11 @@ export const CrmSalesforceView: React.FC<CrmSalesforceViewProps> = ({
   const handleRunAiLeadQualifier = async () => {
     setIsQualifying(true);
     try {
-      const res = await fetch('/api/ai/lead-qualify', {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error('Please sign in again to use AI Sales qualification.');
+      const res = await fetch('https://wise-sell-ai-app2.abdico-veiws22.workers.dev/api/ai/lead-qualify', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           leadName,
           company,
