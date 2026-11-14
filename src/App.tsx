@@ -48,7 +48,7 @@ import { SupportedLanguage, CurrencyMode, translations } from './i18n/translatio
 import { CheckCircle2, Smartphone, Monitor, Mic } from 'lucide-react';
 import { testFirebaseConnection, auth } from './firebase/config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { createBusinessRecord, updateBusinessRecord, watchBusinessRecords } from './firebase/businessData';
+import { createBusinessRecord, updateBusinessRecord, watchBusinessRecords, fulfillSalesOrder } from './firebase/businessData';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<NavTab>('overview');
@@ -190,6 +190,30 @@ export default function App() {
           showToast(error instanceof Error ? error.message : 'Order could not be saved.'));
       }
     });
+  };
+
+  const handleFulfillOrder = async (order: SalesOrder) => {
+    const orderRecordId = orderDocumentIds.current.get(order.id);
+    const productRecordId = productDocumentIds.current.get(order.productId);
+    if (!orderRecordId) {
+      showToast('Order is still being saved. Wait a moment, then try again.');
+      return;
+    }
+    if (!productRecordId) {
+      showToast('Save this product in your inventory before fulfilling the order.');
+      return;
+    }
+    try {
+      const result = await fulfillSalesOrder(orderRecordId, productRecordId, order.productId);
+      handleAddAgentLog(
+        result.alreadyFulfilled ? `Order ${order.orderNumber} was already fulfilled` : `Order ${order.orderNumber} fulfilled`,
+        result.alreadyFulfilled ? 'No additional stock was deducted.' : `Inventory was atomically reduced. Remaining stock: ${result.remainingStock}.`,
+        'Sync'
+      );
+      if (!result.alreadyFulfilled) showToast('Order fulfilled and inventory stock updated.');
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Could not fulfill order.');
+    }
   };
 
   const handleUpdateEngagement = (nextItems: CustomerEngagementItem[]) => {
@@ -401,6 +425,7 @@ export default function App() {
           orders={orders}
           inventory={inventory}
           isAuthenticated={!!currentUser}
+          onFulfillOrder={handleFulfillOrder}
           onUpdateOrders={handleUpdateOrders}
           onAddAgentLog={handleAddAgentLog}
         />
