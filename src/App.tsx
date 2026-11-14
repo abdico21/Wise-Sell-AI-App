@@ -11,6 +11,7 @@ import {
   InventoryItem, 
   SocialPost, 
   CustomerEngagementItem, 
+  SalesOrder,
   AgentActivityLog, 
   CrossPlatformChannelTelemetry,
   UserProfile
@@ -35,6 +36,7 @@ import { MarketingAgentView } from './components/MarketingAgentView';
 import { SocialAgentView } from './components/SocialAgentView';
 import { CrmSalesforceView } from './components/CrmSalesforceView';
 import { InventoryChannelsView } from './components/InventoryChannelsView';
+import { OrdersView } from './components/OrdersView';
 import { BusinessAdvisorView } from './components/BusinessAdvisorView';
 import { AgentWorkTeamsView } from './components/AgentWorkTeamsView';
 import { DatabaseConnectorsView } from './components/DatabaseConnectorsView';
@@ -95,6 +97,8 @@ export default function App() {
   const [posts, setPosts] = useState<SocialPost[]>(initialSocialPosts);
   const [engagement, setEngagement] = useState<CustomerEngagementItem[]>(initialCustomerEngagement);
   const customerDocumentIds = useRef<Map<string, string>>(new Map());
+  const [orders, setOrders] = useState<SalesOrder[]>([]);
+  const orderDocumentIds = useRef<Map<string, string>>(new Map());
   const [logs, setLogs] = useState<AgentActivityLog[]>(initialActivityLogs);
 
   // Load only this user's saved products. Demo catalog remains visible when no saved products exist.
@@ -149,6 +153,44 @@ export default function App() {
       showToast(error instanceof Error ? error.message : 'Could not load saved customers.');
     }
   }, [currentUser?.id]);
+
+  // Load and persist this user's sales orders.
+  useEffect(() => {
+    if (!currentUser) {
+      orderDocumentIds.current.clear();
+      setOrders([]);
+      return;
+    }
+    try {
+      return watchBusinessRecords<SalesOrder>('order', (records) => {
+        orderDocumentIds.current = new Map(records.map(record => [record.data.id, record.id]));
+        setOrders(records.map(record => record.data));
+      }, (error) => showToast(`Could not load saved orders: ${error.message}`));
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Could not load saved orders.');
+    }
+  }, [currentUser?.id]);
+
+  const handleUpdateOrders = (nextOrders: SalesOrder[]) => {
+    const previousById = new Map(orders.map(item => [item.id, item]));
+    setOrders(nextOrders);
+    if (!currentUser) return;
+    nextOrders.forEach(item => {
+      const documentId = orderDocumentIds.current.get(item.id);
+      const previous = previousById.get(item.id);
+      if (documentId) {
+        if (JSON.stringify(previous) !== JSON.stringify(item)) {
+          void updateBusinessRecord(documentId, item).catch(error =>
+            showToast(error instanceof Error ? error.message : 'Order update failed.'));
+        }
+      } else if (!previous) {
+        void createBusinessRecord('order', item).then(id => {
+          orderDocumentIds.current.set(item.id, id);
+        }).catch(error =>
+          showToast(error instanceof Error ? error.message : 'Order could not be saved.'));
+      }
+    });
+  };
 
   const handleUpdateEngagement = (nextItems: CustomerEngagementItem[]) => {
     const previousById = new Map(engagement.map(item => [item.id, item]));
@@ -351,6 +393,16 @@ export default function App() {
           onUpdateInventory={handleUpdateInventory}
           onAddAgentLog={handleAddAgentLog}
           lang={lang}
+          currency={currency}
+        />
+      )}
+
+      {activeTab === 'orders' && (
+        <OrdersView
+          orders={orders}
+          inventory={inventory}
+          onUpdateOrders={handleUpdateOrders}
+          onAddAgentLog={handleAddAgentLog}
           currency={currency}
         />
       )}
