@@ -6,11 +6,12 @@ interface OrdersViewProps {
   orders: SalesOrder[];
   inventory: InventoryItem[];
   isAuthenticated: boolean;
+  onFulfillOrder: (order: SalesOrder) => Promise<void>;
   onUpdateOrders: (orders: SalesOrder[]) => void;
   onAddAgentLog: (action: string, impact: string, category: 'Financial' | 'Sync') => void;
 }
 
-export const OrdersView: React.FC<OrdersViewProps> = ({ orders, inventory, isAuthenticated, onUpdateOrders, onAddAgentLog }) => {
+export const OrdersView: React.FC<OrdersViewProps> = ({ orders, inventory, isAuthenticated, onFulfillOrder, onUpdateOrders, onAddAgentLog }) => {
   const [customerName, setCustomerName] = useState('');
   const [customerContact, setCustomerContact] = useState('');
   const [productId, setProductId] = useState(inventory[0]?.id || '');
@@ -48,6 +49,11 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ orders, inventory, isAut
   };
 
   const updateStatus = (order: SalesOrder, status: SalesOrder['status']) => {
+    if (order.status === 'Fulfilled') return;
+    if (status === 'Fulfilled') {
+      void onFulfillOrder(order);
+      return;
+    }
     onUpdateOrders(orders.map(item => item.id === order.id ? { ...item, status } : item));
     onAddAgentLog(`Order ${order.orderNumber} status changed to ${status}`, 'Order status saved to the business order register.', 'Sync');
   };
@@ -73,12 +79,12 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ orders, inventory, isAut
       <div className="text-sm text-slate-200">Order total: <strong>ETB {total.toLocaleString()}</strong></div>
       {formError && <p className="text-xs text-rose-400">{formError}</p>}
       <button type="submit" disabled={!isAuthenticated} className="rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40">Save order</button>
-      <p className="text-[11px] text-amber-300">Orders are recorded as Pending. This version does not charge payments or deduct stock automatically.</p>
+      <p className="text-[11px] text-amber-300">Orders are recorded as Pending. Choosing Fulfilled deducts saved inventory stock once; payments are not charged in this version.</p>
     </form>
     <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-3"><h2 className="font-semibold text-white">Order register ({orders.length})</h2>
       {orders.length===0 ? <p className="text-sm text-slate-400">No saved orders yet. Create the first buyer order above.</p> : orders.map(order=><div key={order.id} className="rounded-xl border border-slate-800 bg-slate-950 p-4 space-y-3">
         <div className="flex flex-wrap items-start justify-between gap-2"><div><div className="font-semibold text-white">{order.orderNumber} · {order.customerName}</div><div className="text-xs text-slate-400">{order.productName} × {order.quantity} · {order.customerContact}</div></div><div className="text-sm font-bold text-orange-300">{order.currency} {order.totalAmount.toLocaleString()}</div></div>
-        <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs text-slate-400">{order.paymentMethod} · {order.deliveryLocation || 'No delivery location'}</span><select aria-label={`Status for ${order.orderNumber}`} value={order.status} onChange={e=>updateStatus(order,e.target.value as SalesOrder['status'])} className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white">{['Pending','Confirmed','Fulfilled','Cancelled'].map(s=><option key={s}>{s}</option>)}</select></div>
+        <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs text-slate-400">{order.paymentMethod} · {order.deliveryLocation || 'No delivery location'}</span><select aria-label={`Status for ${order.orderNumber}`} value={order.status} disabled={order.status==='Fulfilled'} onChange={e=>updateStatus(order,e.target.value as SalesOrder['status'])} className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white">{['Pending','Confirmed','Fulfilled','Cancelled'].map(s=><option key={s}>{s}</option>)}</select></div>
         {order.status==='Fulfilled' && <div className="flex items-center gap-1 text-xs text-emerald-400"><PackageCheck className="h-3.5 w-3.5"/>Marked fulfilled</div>}
       </div>)}
     </div>
