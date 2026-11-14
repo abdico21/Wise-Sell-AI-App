@@ -346,24 +346,25 @@ export const SocialAgentView: React.FC<SocialAgentViewProps> = ({
     setActiveSubTab('queue');
   };
 
-  // Send AI auto-response to customer
-  const handleSendResponse = (itemId: string) => {
-    const updated = engagementItems.map((item) => {
-      if (item.id !== itemId) return item;
-      return {
-        ...item,
-        status: 'AI Responded' as const,
-        aiDraftedResponse: replyTextMap[itemId] || item.aiDraftedResponse,
-      };
-    });
-
-    onUpdateEngagement(updated);
-    const targetItem = engagementItems.find((i) => i.id === itemId);
-    onAddAgentLog(
-      `Autonomous multi-lingual reply dispatched to ${targetItem?.customerName || 'customer'} on ${targetItem?.platform}`,
-      `Order delivery in ${targetItem?.deliveryCity || 'Addis Ababa'} confirmed & synced to Salesforce`,
-      'Automation'
-    );
+  // Copy the approved AI draft for manual dispatch until an official channel API is authorized.
+  const handleSendResponse = async (itemId: string) => {
+    const targetItem = engagementItems.find((item) => item.id === itemId);
+    const reply = replyTextMap[itemId] || targetItem?.aiDraftedResponse || '';
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard access is unavailable in this browser.');
+      await navigator.clipboard.writeText(reply);
+      onAddAgentLog(
+        `Customer reply copied for manual sending to ${targetItem?.customerName || 'customer'} on ${targetItem?.platform}`,
+        'Draft copied only. No message was sent; connect and authorize the platform API to enable dispatch.',
+        'Automation'
+      );
+    } catch (error) {
+      onAddAgentLog(
+        'Customer reply is ready for manual review',
+        error instanceof Error ? error.message : 'Clipboard unavailable. No message was sent.',
+        'Automation'
+      );
+    }
   };
 
   // Generate Telebirr payment order link
@@ -1839,7 +1840,7 @@ export const SocialAgentView: React.FC<SocialAgentViewProps> = ({
                             className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-md shadow-blue-600/30 transition-all flex items-center gap-1.5 cursor-pointer"
                           >
                             <Send className="w-3.5 h-3.5" />
-                            <span>Approve & Dispatch Reply</span>
+                            <span>Copy Reply for Manual Sending</span>
                           </button>
                         </div>
                       </div>
@@ -1931,14 +1932,16 @@ export const SocialAgentView: React.FC<SocialAgentViewProps> = ({
                   {post.status === 'Scheduled' && (
                     <button
                       onClick={() => {
-                        const updated = posts.map((p) => p.id === post.id ? { ...p, status: 'Published' as const, impressions: 3200, engagementRate: '7.6%' } : p);
-                        onUpdatePosts(updated);
-                        onAddAgentLog(`Published ${post.platform} post immediately`, 'Broadcast live across Ethiopian followers', 'Automation');
+                        onAddAgentLog(
+                          `Publishing access checked for ${post.platform}`,
+                          'No post was published. Connect and authorize the official platform API before live publishing.',
+                          'Automation'
+                        );
                       }}
                       className="px-3.5 py-2 text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       <Play className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Publish Now</span>
+                      <span>Check Publishing Access</span>
                     </button>
                   )}
                   {post.status === 'Published' && post.impressions && (
