@@ -19,6 +19,8 @@ import {
   Check
 } from 'lucide-react';
 import { UserProfile, IndustryType } from '../types';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from 'firebase/auth';
+import { auth } from '../firebase/config';
 import { WiseSellLogo } from './WiseSellLogo';
 
 export type AuthMode = 
@@ -53,11 +55,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [mode, setMode] = useState<AuthMode>(initialMode);
 
   // Form states
-  const [email, setEmail] = useState<string>('abdico.veiws22@gmail.com');
-  const [password, setPassword] = useState<string>('••••••••••••');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [fullName, setFullName] = useState<string>('Abdi Mohammed');
-  const [companyName, setCompanyName] = useState<string>('WiseSell Enterprise Ethiopia');
+  const [fullName, setFullName] = useState<string>('');
+  const [companyName, setCompanyName] = useState<string>('');
   const [selectedIndustry, setSelectedIndustry] = useState<IndustryType | 'Multi-Industry Enterprise'>('Multi-Industry Enterprise');
 
   // Confirmation states
@@ -86,23 +88,41 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setErrorMsg(null);
   };
 
-  // 1. Submit Sign In -> Proceed to Sign In 2FA Confirmation
-  const handleSubmitSignIn = (e: React.FormEvent) => {
+  // Authenticate with the configured Firebase project.
+  const handleSubmitSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setErrorMsg('Please enter both your business email and password.');
+      setErrorMsg('Enter your email and password.');
       return;
     }
-
     setIsLoading(true);
     setErrorMsg(null);
-
-    setTimeout(() => {
+    try {
+      const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
+      const firebaseUser = credential.user;
+      const authenticatedUser: UserProfile = {
+        id: firebaseUser.uid,
+        email: firebaseUser.email || email.trim(),
+        fullName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'WiseSell User',
+        role: 'Growth Marketer',
+        companyName: companyName || 'My Business',
+        primaryIndustry: selectedIndustry,
+        location: 'Ethiopia',
+        is2faVerified: false,
+        lastLoginTime: 'Just now',
+      };
+      onLoginSuccess(authenticatedUser);
+      showToast('Signed in successfully.');
+      onClose();
+    } catch (error: any) {
+      setErrorMsg(error?.code === 'auth/invalid-credential' || error?.code === 'auth/wrong-password'
+        ? 'Email or password is incorrect.'
+        : error?.code === 'auth/user-not-found'
+          ? 'No account was found for this email.'
+          : error?.message || 'Sign-in failed. Check your connection and try again.');
+    } finally {
       setIsLoading(false);
-      // Move to 2FA / Sign-In Confirmation step
-      setMode('signin-confirm');
-      showToast('2FA Security Code Dispatched to your device');
-    }, 700);
+    }
   };
 
   // 2. Submit Sign In Confirmation (OTP Verification)
@@ -136,35 +156,63 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }, 800);
   };
 
-  // 3. Submit Sign Up -> Registration Confirmation
-  const handleSubmitSignUp = (e: React.FormEvent) => {
+  // Create a real Firebase account.
+  const handleSubmitSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !fullName || !companyName) {
-      setErrorMsg('Please fill in all required enterprise registration fields.');
+    if (!email || !password || !fullName || !companyName) {
+      setErrorMsg('Complete all required fields and enter a password.');
       return;
     }
-
+    if (password.length < 6) {
+      setErrorMsg('Password must contain at least 6 characters.');
+      return;
+    }
     setIsLoading(true);
-    setTimeout(() => {
+    setErrorMsg(null);
+    try {
+      const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      const firebaseUser = credential.user;
+      const newUser: UserProfile = {
+        id: firebaseUser.uid,
+        email: firebaseUser.email || email.trim(),
+        fullName,
+        role: 'Growth Marketer',
+        companyName,
+        primaryIndustry: selectedIndustry,
+        location: 'Ethiopia',
+        is2faVerified: false,
+        lastLoginTime: 'Just now',
+      };
+      onLoginSuccess(newUser);
+      showToast('Account created successfully.');
+      onClose();
+    } catch (error: any) {
+      setErrorMsg(error?.code === 'auth/email-already-in-use'
+        ? 'An account already exists for this email. Please sign in.'
+        : error?.message || 'Account creation failed.');
+    } finally {
       setIsLoading(false);
-      setMode('signup-confirm');
-    }, 800);
+    }
   };
 
-  // 4. Submit Forgot Password Request -> Reset Confirmation
-  const handleRequestPasswordReset = (e: React.FormEvent) => {
+  // Send a real Firebase password-reset email.
+  const handleRequestPasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
-      setErrorMsg('Please enter your registered account email.');
+      setErrorMsg('Enter your account email.');
       return;
     }
-
     setIsLoading(true);
-    setTimeout(() => {
+    setErrorMsg(null);
+    try {
+      await sendPasswordResetEmail(auth, email.trim());
+      setMode('reset-success');
+      showToast('Password reset email sent. Check your inbox.');
+    } catch (error: any) {
+      setErrorMsg(error?.message || 'Could not send the password-reset email.');
+    } finally {
       setIsLoading(false);
-      setMode('reset-confirm');
-      showToast('Password reset token dispatched to your email.');
-    }, 700);
+    }
   };
 
   // 5. Submit Password Reset Confirmation
@@ -187,15 +235,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }, 800);
   };
 
-  // 6. Confirm Sign Out
-  const handleConfirmSignOut = () => {
+  // End the Firebase session.
+  const handleConfirmSignOut = async () => {
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    setErrorMsg(null);
+    try {
+      await signOut(auth);
       onLogoutSuccess();
-      showToast('Successfully signed out of WiseSell AI session.');
+      showToast('Signed out successfully.');
       onClose();
-    }, 600);
+    } catch (error: any) {
+      setErrorMsg(error?.message || 'Sign out failed.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
