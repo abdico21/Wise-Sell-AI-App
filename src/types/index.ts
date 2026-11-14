@@ -6,6 +6,7 @@ export type NavTab =
   | 'social' 
   | 'crm' 
   | 'inventory' 
+  | 'orders'
   | 'business'
   | 'database'
   | 'seo'
@@ -309,6 +310,24 @@ export interface SocialPost {
     facebookCarouselCount?: number;
     linkedInB2bTag?: string;
   };
+}
+
+
+export interface SalesOrder {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  customerContact: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+  totalAmount: number;
+  currency: 'ETB' | 'USD';
+  deliveryLocation: string;
+  paymentMethod: 'Telebirr' | 'CBE Birr' | 'Cash on Delivery' | 'Bank Transfer' | 'Other';
+  status: 'Pending' | 'Confirmed' | 'Fulfilled' | 'Cancelled';
+  createdAt: string;
 }
 
 export interface CustomerEngagementItem {
