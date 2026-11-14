@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   NavTab, 
   CampaignABTest, 
@@ -46,6 +46,7 @@ import { SupportedLanguage, CurrencyMode, translations } from './i18n/translatio
 import { CheckCircle2, Smartphone, Monitor, Mic } from 'lucide-react';
 import { testFirebaseConnection, auth } from './firebase/config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { createBusinessRecord, updateBusinessRecord, watchBusinessRecords } from './firebase/businessData';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<NavTab>('overview');
@@ -89,9 +90,52 @@ export default function App() {
   const [campaigns, setCampaigns] = useState<CampaignABTest[]>(initialCampaignTests);
   const [leads, setLeads] = useState<LeadRecord[]>(initialLeads);
   const [inventory, setInventory] = useState<InventoryItem[]>(initialInventory);
+  const productDocumentIds = useRef<Map<string, string>>(new Map());
   const [posts, setPosts] = useState<SocialPost[]>(initialSocialPosts);
   const [engagement, setEngagement] = useState<CustomerEngagementItem[]>(initialCustomerEngagement);
   const [logs, setLogs] = useState<AgentActivityLog[]>(initialActivityLogs);
+
+  // Load only this user's saved products. Demo catalog remains visible when no saved products exist.
+  useEffect(() => {
+    if (!currentUser) {
+      productDocumentIds.current.clear();
+      setInventory(initialInventory);
+      return;
+    }
+    try {
+      return watchBusinessRecords<InventoryItem>('product', (records) => {
+        productDocumentIds.current = new Map(records.map(record => [record.data.id, record.id]));
+        if (records.length > 0) {
+          setInventory(records.map(record => record.data));
+        }
+      }, (error) => showToast(`Could not load saved products: ${error.message}`));
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Could not load saved products.');
+    }
+  }, [currentUser?.id]);
+
+  // Persist newly added products and edits to products already saved in Firestore.
+  const handleUpdateInventory = (nextInventory: InventoryItem[]) => {
+    const previousById = new Map(inventory.map(item => [item.id, item]));
+    setInventory(nextInventory);
+    if (!currentUser) return;
+
+    nextInventory.forEach(item => {
+      const documentId = productDocumentIds.current.get(item.id);
+      const previous = previousById.get(item.id);
+      if (documentId) {
+        if (JSON.stringify(previous) !== JSON.stringify(item)) {
+          void updateBusinessRecord(documentId, item).catch(error =>
+            showToast(error instanceof Error ? error.message : 'Product update failed.'));
+        }
+      } else if (!previous) {
+        void createBusinessRecord('product', item).then(id => {
+          productDocumentIds.current.set(item.id, id);
+        }).catch(error =>
+          showToast(error instanceof Error ? error.message : 'Product could not be saved.'));
+      }
+    });
+  };
 
   const [isCycleRunning, setIsCycleRunning] = useState<boolean>(false);
   const [agentCycleCount, setAgentCycleCount] = useState<number>(42);
@@ -224,7 +268,7 @@ export default function App() {
       {activeTab === 'inventory' && (
         <InventoryChannelsView
           inventory={inventory}
-          onUpdateInventory={setInventory}
+          onUpdateInventory={handleUpdateInventory}
           onAddAgentLog={handleAddAgentLog}
           lang={lang}
           currency={currency}
