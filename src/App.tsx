@@ -43,7 +43,8 @@ import { AuthModal, AuthMode } from './components/AuthModal';
 import { UserProfileModal } from './components/UserProfileModal';
 import { SupportedLanguage, CurrencyMode, translations } from './i18n/translations';
 import { CheckCircle2, Smartphone, Monitor, Mic } from 'lucide-react';
-import { testFirebaseConnection } from './firebase/config';
+import { testFirebaseConnection, auth } from './firebase/config';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<NavTab>('overview');
@@ -53,17 +54,29 @@ export default function App() {
   const [isMobileFrame, setIsMobileFrame] = useState<boolean>(false);
 
   // Authentication & User Session
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>({
-    id: 'usr-admin-01',
-    email: 'abdico.veiws22@gmail.com',
-    fullName: 'Abdi Mohammed',
-    role: 'Enterprise Admin',
-    companyName: 'WiseSell Commerce Group',
-    primaryIndustry: 'Multi-Industry Enterprise',
-    location: 'Addis Ababa, Ethiopia (HQ)',
-    is2faVerified: true,
-    lastLoginTime: 'Just now',
-  });
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+
+  // Restore only a real Firebase-authenticated session; never create a demo user.
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (!firebaseUser) {
+        setCurrentUser(null);
+        return;
+      }
+      setCurrentUser({
+        id: firebaseUser.uid,
+        email: firebaseUser.email || '',
+        fullName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'WiseSell User',
+        role: 'Growth Marketer',
+        companyName: 'My Business',
+        primaryIndustry: 'Multi-Industry Enterprise',
+        location: 'Ethiopia',
+        is2faVerified: false,
+        lastLoginTime: 'Current session',
+      });
+    });
+    return unsubscribe;
+  }, []);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [authModalMode, setAuthModalMode] = useState<AuthMode>('signin');
   const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
@@ -452,7 +465,8 @@ export default function App() {
           setCurrentUser(user);
           setIsAuthModalOpen(false);
         }}
-        onLogoutSuccess={() => {
+        onLogoutSuccess={async () => {
+          await signOut(auth);
           setCurrentUser(null);
           setIsAuthModalOpen(false);
         }}
