@@ -128,6 +128,16 @@ export const Header: React.FC<HeaderProps> = ({
             {t.inventory}
           </button>
           <button
+            onClick={() => onTabChange('orders')}
+            className={`whitespace-nowrap shrink-0 transition-colors py-1 cursor-pointer ${
+              activeTab === 'orders'
+                ? 'text-white border-b-2 border-orange-500 font-semibold'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Orders
+          </button>
+          <button
             onClick={() => onTabChange('business')}
             className={`whitespace-nowrap shrink-0 transition-colors py-1 cursor-pointer ${
               activeTab === 'business'
