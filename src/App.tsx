@@ -340,7 +340,6 @@ export default function App() {
           onTriggerCycle={handleRunAutonomousCycle}
           isCycleRunning={isCycleRunning}
           lang={lang}
-          currency={currency}
           onOpenLangModal={() => setIsLangModalOpen(true)}
         />
       )}
@@ -403,7 +402,6 @@ export default function App() {
           inventory={inventory}
           onUpdateOrders={handleUpdateOrders}
           onAddAgentLog={handleAddAgentLog}
-          currency={currency}
         />
       )}
 
