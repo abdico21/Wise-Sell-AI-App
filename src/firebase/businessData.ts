@@ -1,3 +1,4 @@
+import type { InventoryItem, SalesOrder } from '../types';
 import {
   addDoc,
   collection,
