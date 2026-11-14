@@ -46,7 +46,7 @@ export const MarketingAgentView: React.FC<MarketingAgentViewProps> = ({
   // Firebase status
   const [firebaseConnected, setFirebaseConnected] = useState<boolean>(true);
   const [isSyncingFirebase, setIsSyncingFirebase] = useState<boolean>(false);
-  const [lastFirebaseSyncTime, setLastFirebaseSyncTime] = useState<string | null>('Connected to lunar-option-jbvhw');
+  const [lastFirebaseSyncTime, setLastFirebaseSyncTime] = useState<string | null>('Connected to gen-lang-client-0645056984');
 
   // Check connection on mount
   useEffect(() => {
@@ -73,7 +73,7 @@ export const MarketingAgentView: React.FC<MarketingAgentViewProps> = ({
       setLastFirebaseSyncTime(`Synced to Firestore at ${new Date().toLocaleTimeString()}`);
       onAddAgentLog(
         `Synced Performance Campaign ${camp.name} to Firestore`,
-        `Saved document to /campaign_tests/${camp.id} in lunar-option-jbvhw`,
+        `Saved document to /campaign_tests/${camp.id} in gen-lang-client-0645056984`,
         'Automation'
       );
     } catch (err: any) {
@@ -161,7 +161,7 @@ export const MarketingAgentView: React.FC<MarketingAgentViewProps> = ({
           <span className={`w-2.5 h-2.5 rounded-full ${firebaseConnected ? 'bg-amber-400 animate-pulse' : 'bg-slate-500'}`} />
           <span className="text-slate-400 font-semibold">Firebase Cloud Integration:</span>
           <span className="text-white font-mono font-bold bg-slate-900 border border-slate-700 px-2.5 py-0.5 rounded-lg">
-            Firestore Provisioned: lunar-option-jbvhw
+            Firebase project: gen-lang-client-0645056984
           </span>
           <span className="text-[11px] text-amber-400 font-mono">europe-west2</span>
         </div>
