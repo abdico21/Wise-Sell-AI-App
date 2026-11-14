@@ -8,7 +8,8 @@ export type NavTab =
   | 'inventory' 
   | 'business'
   | 'database'
-  | 'seo'\n  | 'agents';
+  | 'seo'
+  | 'agents';
 
 export interface EthiopianSeoPackage {
   id: string;
