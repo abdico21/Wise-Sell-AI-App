@@ -148,6 +148,12 @@ export const Header: React.FC<HeaderProps> = ({
             {t.database}
           </button>
           <button
+            onClick={() => onTabChange('agents')}
+            className={`whitespace-nowrap shrink-0 transition-colors py-1 cursor-pointer ${activeTab === 'agents' ? 'text-white border-b-2 border-orange-500 font-semibold' : 'text-slate-400 hover:text-slate-200'}`}
+          >
+            AI Teams
+          </button>
+          <button
             onClick={() => onTabChange('seo')}
             className={`whitespace-nowrap shrink-0 transition-colors py-1 cursor-pointer ${
               activeTab === 'seo'
