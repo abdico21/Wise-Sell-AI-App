@@ -432,9 +432,11 @@ export default function App() {
         />
       )}
 
-      {activeTab === 'payments' && <PaymentsView />}\n\n      {activeTab === 'payments' && <PaymentsView />}
+      {activeTab === 'payments' && <PaymentsView />}
 
-      {activeTab === 'agents' && <AgentWorkTeamsView />
+      {activeTab === 'payments' && <PaymentsView />}
+
+      {activeTab === 'agents' && <AgentWorkTeamsView />}
 
       {activeTab === 'business' && (
         <BusinessAdvisorView
