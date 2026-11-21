@@ -1,0 +1,30 @@
+name: WiseSell staging mobile client checks
+
+on:
+  push:
+    branches:
+      - staging/wisesell-social-commerce
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'vite.config.ts'
+      - 'tsconfig*.json'
+      - '.github/workflows/staging-client-check.yml'
+  pull_request:
+    branches:
+      - staging/wisesell-social-commerce
+
+jobs:
+  validate-client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install
+      - name: Type-check
+        run: npm run lint
+      - name: Build web client
+        run: npm run build
