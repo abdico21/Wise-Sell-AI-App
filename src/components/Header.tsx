@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavTab, UserProfile } from '../types';
-import { Sparkles, Activity, Globe, Smartphone, Monitor, Mic, User, ShieldCheck } from 'lucide-react';
+import { Sparkles, Activity, Globe, Smartphone, Monitor, Mic, User, ShieldCheck, CreditCard } from 'lucide-react';
 import { WiseSellLogo } from './WiseSellLogo';
 import { SupportedLanguage, CurrencyMode, supportedLanguages, translations } from '../i18n/translations';
 
@@ -126,6 +126,12 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             {t.inventory}
+          </button>
+          <button
+            onClick={() => onTabChange('payments')}
+            className={`whitespace-nowrap shrink-0 transition-colors py-1 cursor-pointer ${activeTab === 'payments' ? 'text-white border-b-2 border-orange-500 font-semibold' : 'text-slate-400 hover:text-slate-200'}`}
+          >
+            <span className="inline-flex items-center gap-1"><CreditCard className="h-3.5 w-3.5"/>Payments</span>
           </button>
           <button
             onClick={() => onTabChange('orders')}
