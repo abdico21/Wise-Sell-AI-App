@@ -36,7 +36,7 @@ import { MarketingAgentView } from './components/MarketingAgentView';
 import { SocialAgentView } from './components/SocialAgentView';
 import { CrmSalesforceView } from './components/CrmSalesforceView';
 import { InventoryChannelsView } from './components/InventoryChannelsView';
-import { OrdersView } from './components/OrdersView';
+import { OrdersView } from './components/OrdersView';\nimport { PaymentsView } from './components/PaymentsView';
 import { BusinessAdvisorView } from './components/BusinessAdvisorView';
 import { AgentWorkTeamsView } from './components/AgentWorkTeamsView';
 import { DatabaseConnectorsView } from './components/DatabaseConnectorsView';
@@ -431,7 +431,7 @@ export default function App() {
         />
       )}
 
-      {activeTab === 'agents' && <AgentWorkTeamsView />}
+      {activeTab === 'payments' && <PaymentsView />}\n\n      {activeTab === 'agents' && <AgentWorkTeamsView />}
 
       {activeTab === 'business' && (
         <BusinessAdvisorView
