@@ -37,7 +37,6 @@ import { SocialAgentView } from './components/SocialAgentView';
 import { CrmSalesforceView } from './components/CrmSalesforceView';
 import { InventoryChannelsView } from './components/InventoryChannelsView';
 import { OrdersView } from './components/OrdersView';
-import { PaymentsView } from './components/PaymentsView';
 import { BusinessAdvisorView } from './components/BusinessAdvisorView';
 import { AgentWorkTeamsView } from './components/AgentWorkTeamsView';
 import { DatabaseConnectorsView } from './components/DatabaseConnectorsView';
@@ -432,8 +431,6 @@ export default function App() {
         />
       )}
 
-      {activeTab === 'payments' && <PaymentsView />}
-
       {activeTab === 'agents' && <AgentWorkTeamsView />}
 
       {activeTab === 'business' && (
@@ -646,8 +643,6 @@ export default function App() {
             <span>Telebirr ቴሌብር</span>
             <span>·</span>
             <span>CBE Birr</span>
-            <span>·</span>
-            <span>Chapa ቻፓ</span>
             <span>·</span>
             <span>Telegram</span>
             <span>·</span>
