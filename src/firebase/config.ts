@@ -9,9 +9,10 @@ export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getA
 // Initialize Auth
 export const auth = getAuth(app);
 
-// Initialize Firestore with specific databaseId if configured
-export const db = firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== '(default)'
-  ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
+// Initialize Firestore with the configured database ID when the applet provides one.
+const firestoreDatabaseId = (firebaseConfig as typeof firebaseConfig & { firestoreDatabaseId?: string }).firestoreDatabaseId;
+export const db = firestoreDatabaseId && firestoreDatabaseId !== '(default)'
+  ? getFirestore(app, firestoreDatabaseId)
   : getFirestore(app);
 
 // Connectivity validation helper as mandated by Firebase integration skill
