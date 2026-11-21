@@ -75,7 +75,7 @@ export const PaymentsView: React.FC = () => {
   return <div className="space-y-5">
     <section className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
       <div className="flex items-center gap-3"><CreditCard className="h-6 w-6 text-orange-400"/><div><h1 className="text-xl font-bold text-white">Payments & Provider Connections</h1><p className="text-xs text-slate-400">Ethiopian payment methods · ETB · authenticated server-side checkout</p></div></div>
-      <p className="mt-3 text-sm text-slate-300">Payment providers are enabled only after merchant credentials and secure server configuration are verified. A checkout redirect is not proof of payment.</p>
+      <p className="mt-3 text-sm text-slate-300">Payment providers are enabled only after merchant credentials and secure server configuration are verified. A checkout redirect is not proof of payment. This staging flow is test-mode and platform-merchant only; it is not yet connected to seller accounts or marketplace orders.</p>
     </section>
     <section className="grid grid-cols-1 sm:grid-cols-3 gap-3">
       {providers.map(provider => <div key={provider.id} className="rounded-xl border border-slate-800 bg-slate-950 p-4">
@@ -92,7 +92,7 @@ export const PaymentsView: React.FC = () => {
       </div>
       <button disabled={busy || !auth.currentUser || !providers.find(p=>p.id===selected)?.available} className="rounded-lg bg-orange-500 px-4 py-3 text-sm font-bold text-white disabled:opacity-40">{busy ? 'Please wait…' : 'Continue to provider checkout'}</button>
       {!auth.currentUser && <p className="text-xs text-amber-300">Sign in to initiate a payment.</p>}
-      <p className="text-[11px] text-slate-400">Chapa is the first checkout adapter. Telebirr direct and CBE Birr direct remain disabled until merchant API credentials and test approval are configured.</p>
+      <p className="text-[11px] text-slate-400">Chapa is currently a platform test checkout only. Seller-specific collections, order fulfillment, Telebirr direct and CBE Birr direct remain disabled until merchant onboarding and secure provider integrations are completed.</p>
     </form>
     {payment && <section className="rounded-xl border border-slate-700 bg-slate-950 p-4 space-y-3">
       <div className="flex items-center gap-2 text-sm font-semibold text-white"><ShieldCheck className="h-4 w-4 text-orange-400"/>Payment reference: {payment.reference}</div>
