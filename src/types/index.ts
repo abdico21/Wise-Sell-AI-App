@@ -7,6 +7,7 @@ export type NavTab =
   | 'crm' 
   | 'inventory' 
   | 'orders'
+  | 'payments'
   | 'business'
   | 'database'
   | 'seo'
