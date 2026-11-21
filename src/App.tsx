@@ -434,8 +434,6 @@ export default function App() {
 
       {activeTab === 'payments' && <PaymentsView />}
 
-      {activeTab === 'payments' && <PaymentsView />}
-
       {activeTab === 'agents' && <AgentWorkTeamsView />}
 
       {activeTab === 'business' && (
