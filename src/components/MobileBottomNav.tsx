@@ -11,6 +11,7 @@ import {
   Users, 
   Package, 
   ShoppingCart,
+  CreditCard,
   Bot, 
   X,
   ChevronRight,
