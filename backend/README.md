@@ -29,7 +29,7 @@ Set the following environment variables in Render (never commit real secrets):
 
 - `NODE_ENV=staging`
 - `SUPABASE_URL=https://kevvtkhhpempkfevrhfu.supabase.co` — WiseSell-Staging project URL
-- `SUPABASE_ANON_KEY` — use the project's active publishable key (or legacy anon key); never use the service-role/secret key
+- `SUPABASE_PUBLISHABLE_KEY` — use the active publishable key for WiseSell-Staging; never use a service-role/secret key
 - `OPENAI_API_KEY` — server-side OpenAI API key
 - `OPENAI_MODEL=gpt-4o-mini`
 - `FRONTEND_ORIGINS` — exact deployed WiseSell frontend origin(s)
@@ -38,7 +38,7 @@ Set the following environment variables in Render (never commit real secrets):
 ## Security notes
 
 - Every AI request requires a valid Supabase access token; the token is verified with Supabase Auth `getUser`.
-- The Supabase service-role key is not used.
+- The Supabase publishable key is used; no service-role/secret key is required.
 - Request DTO validation rejects unknown fields and unsupported values.
 - Throttling is 10 requests per minute per IP per service instance. Use a shared Redis-backed limiter before production or multi-instance scaling.
 - The OpenAI key remains server-side. Provider response bodies and secrets are not returned to clients.
