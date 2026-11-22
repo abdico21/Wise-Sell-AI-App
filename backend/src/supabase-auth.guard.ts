@@ -19,10 +19,10 @@ export class SupabaseAuthGuard implements CanActivate {
     if (!match) throw new UnauthorizedException('Bearer access token required');
 
     const url = process.env.SUPABASE_URL;
-    const anonKey = process.env.SUPABASE_ANON_KEY;
-    if (!url || !anonKey) throw new ServiceUnavailableException('Supabase authentication is not configured');
+    const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
+    if (!url || !publishableKey) throw new ServiceUnavailableException('Supabase authentication is not configured');
 
-    const supabase = createClient(url, anonKey, {
+    const supabase = createClient(url, publishableKey, {
       auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     });
     const { data, error } = await supabase.auth.getUser(match[1]);
