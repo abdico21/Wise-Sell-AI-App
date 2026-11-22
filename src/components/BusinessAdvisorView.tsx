@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { auth } from '../firebase/config';
+import { requestWiseSellAi } from '../services/wisesellApi';
 import { 
   Bot, 
   Sparkles, 
@@ -37,8 +37,6 @@ export const BusinessAdvisorView: React.FC<BusinessAdvisorViewProps> = ({
     setIsAnalyzing(true);
     setAnalysisError(null);
     try {
-      const token = await auth.currentUser?.getIdToken();
-      if (!token) throw new Error('Please sign in again to use the AI Business Assistant.');
       const prompt = [
         'Create a practical business growth analysis using only the scenario information below.',
         `Monthly sales / GMV: ${gmv}`,
@@ -49,15 +47,7 @@ export const BusinessAdvisorView: React.FC<BusinessAdvisorViewProps> = ({
         `Target growth: ${targetGrowth}`,
         'Give an executive summary, five prioritized actions, key risks, and a simple 30-day action plan. Clearly label assumptions and do not invent business data.'
       ].join('\\n');
-      const res = await fetch('https://wise-sell-ai-app2.abdico-veiws22.workers.dev/api/agents/business-assistant', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ message: prompt }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.ok || typeof data.answer !== 'string' || !data.answer.trim()) {
-        throw new Error(data.detail || data.error || `AI request failed (${res.status}). Please retry.`);
-      }
+      const data = await requestWiseSellAi(prompt);
       setGrowthReport({
         executiveSummary: data.answer,
         strategicRecommendations: [],
