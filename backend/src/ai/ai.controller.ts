@@ -1,6 +1,5 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { IsString, MaxLength, MinLength } from 'class-validator';
-import { Request } from 'express';
 import { AiService } from './ai.service';
 import { FirebaseAuthGuard } from '../security/firebase-auth.guard';
 
@@ -17,7 +16,7 @@ export class AiController {
   constructor(private readonly ai: AiService) {}
 
   @Post('assist')
-  assist(@Body() body: AssistDto, @Req() req: Request & { user: { uid: string } }) {
+  assist(@Body() body: AssistDto, @Req() req: any) {
     return this.ai.assist(body.prompt, req.user.uid);
   }
 }
