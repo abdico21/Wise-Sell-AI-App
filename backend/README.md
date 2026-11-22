@@ -23,13 +23,13 @@ Send the Supabase access token in `Authorization: Bearer <access_token>`.
 
 ## Staging deployment
 
-Configure the Render service to use this repository and set **Root Directory** to `backend`. Build command: `npm ci && npm run build`. Start command: `npm run start:prod`.
+Configure the Render service to use this repository and set **Root Directory** to `backend`. Build command: `npm install && npm run build`. Start command: `npm run start:prod`.
 
 Set the following environment variables in Render (never commit real secrets):
 
 - `NODE_ENV=staging`
-- `SUPABASE_URL` — URL for the WiseSell-Staging Supabase project
-- `SUPABASE_ANON_KEY` — Supabase publishable/anon key (not service-role)
+- `SUPABASE_URL=https://kevvtkhhpempkfevrhfu.supabase.co` — WiseSell-Staging project URL
+- `SUPABASE_ANON_KEY` — use the project's active publishable key (or legacy anon key); never use the service-role/secret key
 - `OPENAI_API_KEY` — server-side OpenAI API key
 - `OPENAI_MODEL=gpt-4o-mini`
 - `FRONTEND_ORIGINS` — exact deployed WiseSell frontend origin(s)
