@@ -10,7 +10,7 @@ export class HealthController {
   @Get('ready')
   ready() {
     const checks = {
-      supabase: Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY),
+      supabase: Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_PUBLISHABLE_KEY),
       openai: Boolean(process.env.OPENAI_API_KEY),
     };
     const ready = Object.values(checks).every(Boolean);
