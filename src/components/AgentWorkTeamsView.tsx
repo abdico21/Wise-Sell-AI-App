@@ -13,7 +13,9 @@ const AGENTS = [
 
 const API = 'https://wise-sell-ai-app2.abdico-veiws22.workers.dev';
 
-export const AgentWorkTeamsView: React.FC = () => {
+interface AgentWorkTeamsViewProps { lang: string; }
+
+export const AgentWorkTeamsView: React.FC<AgentWorkTeamsViewProps> = ({ lang }) => {
   const [agentId, setAgentId] = useState(AGENTS[0].id);
   const [task, setTask] = useState('');
   const [answer, setAnswer] = useState('');
@@ -37,7 +39,7 @@ export const AgentWorkTeamsView: React.FC = () => {
       const response = await fetch(`${API}/api/agents/${agentId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, language: lang }),
       });
       const data = await response.json();
       if (!response.ok || !data.ok || typeof data.answer !== 'string' || !data.answer.trim()) {
@@ -67,7 +69,7 @@ export const AgentWorkTeamsView: React.FC = () => {
       const response = await fetch(API + '/api/agents/orchestrate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, language: lang }),
       });
       const data = await response.json();
       if (!response.ok || !data.ok || typeof data.answer !== 'string' || !data.answer.trim()) {
