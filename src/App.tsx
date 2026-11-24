@@ -431,7 +431,7 @@ export default function App() {
         />
       )}
 
-      {activeTab === 'agents' && <AgentWorkTeamsView />}
+      {activeTab === 'agents' && <AgentWorkTeamsView lang={lang} />}
 
       {activeTab === 'business' && (
         <BusinessAdvisorView
